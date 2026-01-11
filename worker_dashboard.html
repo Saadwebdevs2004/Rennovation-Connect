@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Worker Dashboard | Renovation Connect</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="./css/style.css">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark navbar-custom shadow-sm">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">
+                <span class="h4 mb-0">🛠️ Renovation Connect</span>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="#">My Dashboard</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="worker_profile.html">My Profile</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link btn btn-accent fw-bold" href="index.html">Logout</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+    <div class="container my-5">
+        <h1 class="mb-4 text-primary">👷 Welcome Back, Skilled Worker!</h1>
+        <p class="lead text-secondary">Find new projects and manage your active bids.</p>
+        
+        <div class="p-3 mb-4 bg-white shadow-sm rounded">
+            <h5 class="mb-3">Find Jobs by Category or Location</h5>
+            <div class="row">
+                <div class="col-md-5 mb-2 mb-md-0">
+                    <input type="text" class="form-control" placeholder="Search by City or Keyword...">
+                </div>
+                <div class="col-md-5 mb-2 mb-md-0">
+                    <select class="form-select">
+                        <option selected>Filter by Trade (e.g., Plumbing)</option>
+                        <option>Electrical</option>
+                        <option>Painting</option>
+                        <option>Carpentry</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <button class="btn btn-primary w-100">Search</button>
+                </div>
+            </div>
+        </div>
+
+        <hr>
+
+        <h2 class="mb-3 text-secondary">Available Tasks in Your Area</h2>
+        
+        <div class="card shadow-sm mb-3 border-start border-primary border-5">
+            <div class="card-body">
+                <div class="row align-items-center">
+                    <div class="col-md-8">
+                        <span class="badge bg-primary text-white mb-2">Plumbing</span>
+                        <h5 class="card-title text-primary">Urgent Leak Repair - Kitchen Faucet</h5>
+                        <p class="card-text text-muted mb-1">Location: Lahore, Gulberg | Budget Range: $200 - $350</p>
+                        <p class="card-text">Faucet replacement needed urgently. Homeowner will purchase the new faucet beforehand.</p>
+                    </div>
+                    <div class="col-md-4 text-end">
+                        <span class="badge bg-secondary fs-6 mb-2">No Bids Yet!</span>
+                        <a href="place_bid.html" class="btn btn-accent btn-sm mt-2 w-100 fw-bold">Place Your Bid</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card shadow-sm mb-3 border-start border-warning border-5">
+            <div class="card-body">
+                <div class="row align-items-center">
+                    <div class="col-md-8">
+                        <span class="badge bg-primary text-white mb-2">Painting (Interior)</span>
+                        <h5 class="card-title text-warning">Repaint Two Bedroom Walls</h5>
+                        <p class="card-text text-muted mb-1">Location: Rawalpindi, Satellite Town | Budget Range: $600 - $900</p>
+                        <p class="card-text">Standard two-coat repainting for two average-sized bedrooms. Homeowner supplies paint.</p>
+                    </div>
+                    <div class="col-md-4 text-end">
+                        <span class="badge bg-info fs-6 mb-2">5 Bids Placed</span>
+                        <a href="place_bid.html" class="btn btn-secondary btn-sm mt-2 w-100">Review Bid Details</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="alert alert-info text-center mt-4" role="alert">
+            No more tasks matching your location. Check back later or adjust your search filters!
+        </div>
+
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
