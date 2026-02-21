@@ -1,38 +1,81 @@
-.App {
-  text-align: center;
+/* Custom Style Sheet for Renovation Connect */
+
+/* Define CSS Variables for easy color changes */
+:root {
+    --primary-color: #007BFF; /* Secondary Color: Trustworthy Blue */
+    --accent-color: #FFC107;  /* Accent Color: Energetic Orange */
+    --danger-color: #DC3545;  /* For Delete/Urgent actions */
+    --background-color: #F8F9FA; /* Primary Color: Light Gray */
+    --text-color: #343A40; /* Dark Gray for main text */
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
+/* Apply background and text color to the body */
+body {
+    background-color: var(--background-color);
+    color: var(--text-color);
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
+/* Customizing Bootstrap elements with the new palette */
+
+/* Navbar (using the Primary Blue) */
+.navbar-custom {
+    background-color: var(--primary-color) !important;
 }
 
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
+/* Primary Buttons (using the Primary Blue) */
+.btn-primary {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+.btn-primary:hover {
+    background-color: #0056b3; /* Slightly darker blue */
+    border-color: #0056b3;
 }
 
-.App-link {
-  color: #61dafb;
+/* Accent Buttons (using the Accent Orange) */
+.btn-accent {
+    background-color: var(--accent-color);
+    border-color: var(--accent-color);
+    color: var(--text-color) !important; /* Ensure black text on yellow/orange */
+    font-weight: bold;
+}
+.btn-accent:hover {
+    background-color: #e0a800; /* Slightly darker orange */
+    border-color: #e0a800;
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+/* --- ENHANCEMENTS FOR VISUAL POLISH --- */
+
+/* Smooth transitions for hover effects */
+.card, .btn, .form-control {
+    transition: all 0.3s ease-in-out;
+}
+
+/* 1. Card Lift Effect (The cards in Login/Registration/Dashboard) */
+.card {
+    border-radius: 12px; /* Smoother corners */
+    border: 1px solid rgba(0, 0, 0, 0.05); /* Subtle border for definition */
+}
+.card:hover {
+    transform: translateY(-3px); /* Lifts the card slightly */
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1) !important; /* Stronger shadow on hover */
+}
+
+/* 2. Form Focus Animation (Inputs look better when clicked) */
+.form-control:focus, .form-select:focus, .form-control:active {
+    box-shadow: 0 0 0 0.25rem rgba(0, 123, 255, 0.25); /* Primary Blue Glow */
+    border-color: var(--primary-color);
+}
+
+/* 3. Button Press Effect (Feedback when clicking a button) */
+.btn:active {
+    transform: translateY(1px); /* Slight downward press animation */
+}
+
+/* 4. Task Card Hover Effect (Specific to Dashboard Task Cards) */
+.card[class*="border-start"] { /* Targets cards with border-start (Tasks) */
+    cursor: pointer;
+}
+.card[class*="border-start"]:hover {
+    background-color: #f0f4f7; /* Very slight background change on hover */
 }
