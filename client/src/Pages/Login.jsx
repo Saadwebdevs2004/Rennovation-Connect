@@ -1,19 +1,21 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 const Login = () => {
-  // 1. State to hold the email and password
+  // State to hold the email and password
   const [formData, setFormData] = useState({
     email: '',
     password: ''
   });
 
-  // 2. Update state when you type
+  const navigate = useNavigate();
+
+  // Update state when you type
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  // 3. Send data to the server to verify
+  // Send data to the server to verify
   const handleSubmit = async (e) => {
     e.preventDefault();
     
@@ -29,8 +31,15 @@ const Login = () => {
       const data = await response.json();
 
       if (response.ok) {
-        // Success!
-        alert('Login Successful! Welcome back! 🎉 (We will set up the dashboard routing next time)');
+        // 1. Save the user's data into the browser's memory!
+        localStorage.setItem('user', JSON.stringify(data.user));
+
+        // 2. The Traffic Cop: Check their role and teleport them to the right dashboard
+        if (data.user.role === 'Worker') {
+            navigate('/worker-dashboard');
+        } else {
+            navigate('/dashboard'); // Send Homeowners here
+        }
       } else {
         // Wrong password or email
         alert('Login Failed: ' + data.error);
@@ -67,16 +76,13 @@ const Login = () => {
                 <div className="card p-4 shadow-lg border-0">
                     <h2 className="card-title text-center mb-4 text-primary">Log In</h2>
                     
-                    {/* Form submission added here */}
                     <form onSubmit={handleSubmit}>
                         <div className="mb-3">
                             <label htmlFor="email" className="form-label">Email address</label>
-                            {/* Added name and value attributes */}
                             <input type="email" className="form-control" id="email" name="email" value={formData.email} onChange={handleChange} placeholder="name@example.com" required />
                         </div>
                         <div className="mb-4">
                             <label htmlFor="password" className="form-label">Password</label>
-                            {/* Added name and value attributes */}
                             <input type="password" className="form-control" id="password" name="password" value={formData.password} onChange={handleChange} required />
                         </div>
                         
