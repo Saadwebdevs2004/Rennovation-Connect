@@ -12,7 +12,7 @@ module.exports = (app, db) => {
 
         // Validate input data
         if (!email || !password || !fullName || !userRole) {
-            return res.status(400).send('Missing required fields.');
+            return res.status(400).json({ error: 'Missing required fields.' });
         }
 
         try {
@@ -32,10 +32,10 @@ module.exports = (app, db) => {
         } catch (error) {
             // Handle duplicate email errors or general DB errors
             if (error.code === 'ER_DUP_ENTRY') {
-                return res.status(409).send('Email already in use.');
+                return res.status(409).json({ error: 'Email already in use.' });
             }
             console.error('Registration Error:', error);
-            res.status(500).send('Server error during registration.');
+            res.status(500).json({ error: 'Server error during registration.' });
         }
     });
 
