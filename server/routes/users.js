@@ -36,4 +36,16 @@ module.exports = function(app, db) {
       res.status(500).json({ error: "Failed to update user profile" });
     }
   });
+
+  // --- ADMIN: GET ALL USERS ---
+  app.get('/api/users', async (req, res) => {
+    try {
+      const sql = "SELECT UserID, FullName, Email, Role, CreatedAt FROM Users ORDER BY CreatedAt DESC";
+      const [results] = await db.query(sql);
+      res.status(200).json(results);
+    } catch (error) {
+      console.error("Error fetching users list:", error);
+      res.status(500).json({ error: "Failed to fetch users list" });
+    }
+  });
 };

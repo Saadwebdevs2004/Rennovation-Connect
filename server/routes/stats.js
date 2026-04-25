@@ -83,4 +83,26 @@ module.exports = function(app, db) {
       res.status(500).json({ error: "Failed to fetch payments." });
     }
   });
+
+  // --- ADMIN STATS ---
+  app.get('/api/stats/admin', async (req, res) => {
+    try {
+      const [totalUsers] = await db.query("SELECT COUNT(*) as count FROM users");
+      const [totalJobs] = await db.query("SELECT COUNT(*) as count FROM jobs");
+      const [totalBids] = await db.query("SELECT COUNT(*) as count FROM bids");
+      const [totalRevenue] = await db.query("SELECT SUM(amount) as total FROM payments WHERE status = 'completed'");
+      const [recentJobs] = await db.query("SELECT j.*, u.fullName as clientName FROM jobs j JOIN users u ON j.homeownerId = u.UserID ORDER BY created_at DESC LIMIT 5");
+
+      res.status(200).json({
+        totalUsers: totalUsers[0].count,
+        totalJobs: totalJobs[0].count,
+        totalBids: totalBids[0].count,
+        totalRevenue: totalRevenue[0].total || 0,
+        recentJobs: recentJobs
+      });
+    } catch (error) {
+      console.error("Error fetching admin stats:", error);
+      res.status(500).json({ error: "Failed to fetch admin stats." });
+    }
+  });
 };

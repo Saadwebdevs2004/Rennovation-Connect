@@ -52,7 +52,8 @@ module.exports = function(app, db) {
     try {
       const { workerId } = req.params;
       const sql = `
-        SELECT b.*, j.title as job_title 
+        SELECT b.*, j.title as job_title, j.status as job_status,
+               EXISTS(SELECT 1 FROM payments p WHERE p.job_id = j.id AND (p.status = 'completed' OR p.status = 'pending_approval')) as isPaid
         FROM bids b 
         JOIN jobs j ON b.job_id = j.id 
         WHERE b.worker_id = ? 
@@ -71,7 +72,9 @@ module.exports = function(app, db) {
     try {
       const { homeownerId } = req.params;
       const sql = `
-        SELECT b.*, j.title as job_title, u.fullName as worker_name, u.email as worker_email 
+        SELECT b.*, j.title as job_title, j.status as job_status, 
+               u.fullName as worker_name, u.email as worker_email,
+               EXISTS(SELECT 1 FROM payments p WHERE p.job_id = j.id AND (p.status = 'completed' OR p.status = 'pending_approval')) as isPaid
         FROM bids b 
         JOIN jobs j ON b.job_id = j.id 
         JOIN users u ON b.worker_id = u.UserID 
