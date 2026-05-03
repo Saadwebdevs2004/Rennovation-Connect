@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import Image from "next/image"
@@ -21,6 +21,20 @@ export default function LoginPage() {
     rememberMe: false,
   })
 
+  // Check if already logged in
+  useEffect(() => {
+    const savedUser = (localStorage.getItem('user') || sessionStorage.getItem('user')) || sessionStorage.getItem('user')
+    if (savedUser) {
+      try {
+        const userData = JSON.parse(savedUser)
+        const userRole = (userData.Role || userData.role || 'homeowner').toLowerCase()
+        router.replace(`/${userRole}/dashboard`)
+      } catch (e) {
+        console.error("Session check failed", e)
+      }
+    }
+  }, [router])
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsLoading(true)
@@ -33,7 +47,12 @@ export default function LoginPage() {
       const data = await response.json()
       if (response.ok) {
         const userData = data.user || data
-        localStorage.setItem('user', JSON.stringify(userData))
+        
+        if (formData.rememberMe) {
+          localStorage.setItem('user', JSON.stringify(userData))
+        } else {
+          sessionStorage.setItem('user', JSON.stringify(userData))
+        }
         
         // Also set a secure cookie for middleware protection
         setUserCookie(userData)

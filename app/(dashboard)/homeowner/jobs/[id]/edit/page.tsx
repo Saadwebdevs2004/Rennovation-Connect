@@ -35,6 +35,7 @@ export default function EditJobPage() {
   
   const [isLoading, setIsLoading] = useState(true)
   const [isSaving, setIsSaving] = useState(false)
+  const [formError, setFormError] = useState<string | null>(null)
   const [formData, setFormData] = useState({
     title: "",
     category: "",
@@ -82,8 +83,10 @@ export default function EditJobPage() {
       const min = parseInt(formData.budgetMin)
       const max = parseInt(formData.budgetMax)
 
+      setFormError(null)
+
       if (min > max) {
-        alert("Wait! Your minimum budget (RS " + min + ") cannot be higher than your maximum budget (RS " + max + "). Please correct this before saving.")
+        setFormError("Minimum budget cannot be higher than maximum budget.")
         setIsSaving(false)
         return
       }
@@ -233,6 +236,9 @@ export default function EditJobPage() {
               />
             </div>
           </div>
+          {formError && (
+            <p className="text-sm font-medium text-destructive mt-2">{formError}</p>
+          )}
         </div>
 
         <div className="flex items-center justify-between pt-4">

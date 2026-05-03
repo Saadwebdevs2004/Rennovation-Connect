@@ -5,6 +5,7 @@ import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation" // Added useRouter
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
+import { removeUserCookie } from "@/lib/auth-cookies"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import {
   Wrench,
@@ -68,7 +69,9 @@ export function DashboardSidebar({ role }: SidebarProps) {
   // LOGOUT FUNCTION
   const handleLogout = () => {
     localStorage.removeItem('user') // Clear the "sticky note"
-    router.push('/login') // Send back to login page
+    sessionStorage.removeItem('user') // Clear session storage
+    removeUserCookie() // Clear the secure cookie
+    window.location.href = '/login' // Force a full navigation
   }
 
   const navItems = role === "admin" ? adminNavItems : (role === "homeowner" ? homeownerNavItems : workerNavItems)

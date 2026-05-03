@@ -42,7 +42,7 @@ export default function WorkerJobsPage() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    const savedUser = localStorage.getItem('user')
+    const savedUser = (localStorage.getItem('user') || sessionStorage.getItem('user'))
     let workerIdParam = ''
     if (savedUser) {
       try {

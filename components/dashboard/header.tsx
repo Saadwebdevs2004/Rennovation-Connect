@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation" // Added for logout
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { removeUserCookie } from "@/lib/auth-cookies"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -48,7 +49,7 @@ export function DashboardHeader({ role, user: propUser, onMenuClick }: HeaderPro
   // 1. Handle Hydration and LocalStorage
   useEffect(() => {
     setMounted(true)
-    const savedUser = localStorage.getItem('user')
+    const savedUser = (localStorage.getItem('user') || sessionStorage.getItem('user'))
     
     // Set Dynamic Greetings
     const hour = new Date().getHours();
@@ -161,9 +162,11 @@ export function DashboardHeader({ role, user: propUser, onMenuClick }: HeaderPro
   // 2. Handle Logout
   const handleLogout = () => {
     localStorage.removeItem('user')
+    sessionStorage.removeItem('user') // CLEAR SESSION STORAGE AS WELL
+    removeUserCookie() // CLEAR SECURE COOKIE AS WELL
     setNotifications([]) // CLEAR NOTIFICATIONS STATE IMMEDIATELY
     setCurrentUser({ id: null, name: "User", email: "" })
-    router.push('/login')
+    window.location.href = '/login' // Force a full navigation to ensure clean state
   }
 
   const getNotificationIcon = (type: string) => {
@@ -312,7 +315,7 @@ export function DashboardHeader({ role, user: propUser, onMenuClick }: HeaderPro
                 <DropdownMenuSeparator />
                 <DropdownMenuItem 
                   className="text-destructive cursor-pointer"
-                  onClick={handleLogout}
+                  onSelect={handleLogout}
                 >
                   <LogOut className="w-4 h-4 mr-2" />
                   Log Out

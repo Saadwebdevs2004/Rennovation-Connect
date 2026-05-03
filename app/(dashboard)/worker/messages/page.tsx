@@ -12,7 +12,7 @@ export default function WorkerMessages() {
   const [newMessage, setNewMessage] = useState("")
 
   useEffect(() => {
-    const savedUser = localStorage.getItem('user')
+    const savedUser = (localStorage.getItem('user') || sessionStorage.getItem('user'))
     if (savedUser) {
       setCurrentUser(JSON.parse(savedUser))
     }
@@ -45,16 +45,36 @@ export default function WorkerMessages() {
 
   // Handle new conversation from URL (if applicable)
   useEffect(() => {
-    if (contacts.length > 0 && typeof window !== 'undefined') {
+    if (typeof window !== 'undefined') {
       const params = new URLSearchParams(window.location.search)
       const contactId = params.get('contactId')
+      const name = params.get('name') || "Client"
+      const jobId = params.get('jobId')
+      
       if (contactId && !selectedContact) {
+        // Find in existing contacts first
         const found = contacts.find((c: any) => String(c.id) === String(contactId))
-        if (found) setSelectedContact(found)
-        window.history.replaceState({}, '', window.location.pathname)
+        
+        if (found) {
+          setSelectedContact(found)
+        } else if (contactsData !== undefined) {
+          // If not found in existing contacts, but contacts have finished loading, create a temporary contact
+          setSelectedContact({
+            id: contactId,
+            name: decodeURIComponent(name),
+            job_id: jobId,
+            lastMessage: "Start a new conversation",
+            unread_count: 0
+          })
+        }
+        
+        // Only clear the URL once we've selected the contact
+        if (found || contactsData !== undefined) {
+          window.history.replaceState({}, '', window.location.pathname)
+        }
       }
     }
-  }, [contacts, selectedContact])
+  }, [contacts, contactsData, selectedContact])
 
   const handleSelectContact = (contact: any) => {
     setSelectedContact(contact)

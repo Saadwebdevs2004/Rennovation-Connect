@@ -26,7 +26,7 @@ export default function HomeownerProfilePage() {
 
   useEffect(() => {
     setMounted(true)
-    const savedUser = localStorage.getItem('user')
+    const savedUser = (localStorage.getItem('user') || sessionStorage.getItem('user'))
     if (savedUser) {
       try {
         const user = JSON.parse(savedUser)
@@ -63,7 +63,7 @@ export default function HomeownerProfilePage() {
     e.preventDefault()
     setIsLoading(true)
     
-    const savedUser = localStorage.getItem('user')
+    const savedUser = (localStorage.getItem('user') || sessionStorage.getItem('user'))
     if (savedUser) {
       const user = JSON.parse(savedUser)
       const userId = user.id || user.UserID

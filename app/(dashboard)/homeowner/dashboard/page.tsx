@@ -45,7 +45,7 @@ export default function HomeownerDashboard() {
   const [userName, setUserName] = useState("Homeowner")
 
   useEffect(() => {
-    const savedUser = localStorage.getItem('user')
+    const savedUser = (localStorage.getItem('user') || sessionStorage.getItem('user'))
     if (savedUser) {
       const user = JSON.parse(savedUser)
       setUserId(String(user.id || user.UserID || ""))
@@ -53,17 +53,20 @@ export default function HomeownerDashboard() {
     }
   }, [])
 
-  const { data: statsData, isLoading: statsLoading } = useSWR(
+  const { data: statsData, error: statsError } = useSWR(
     userId ? `/api/proxy?path=${encodeURIComponent(`/api/stats/homeowner/${userId}`)}` : null,
     fetcher
   )
 
-  const { data: jobsData, isLoading: jobsLoading } = useSWR(
+  const { data: jobsData, error: jobsError } = useSWR(
     userId ? `/api/proxy?path=${encodeURIComponent(`/api/jobs/homeowner/${userId}`)}` : null,
     fetcher
   )
 
-  const isLoading = !userId || statsLoading || jobsLoading
+  const isStatsLoading = !statsData && !statsError && userId;
+  const isJobsLoading = !jobsData && !jobsError && userId;
+
+  const isLoading = !userId || isStatsLoading || isJobsLoading;
 
   const stats = [
     { title: "Active Jobs", value: statsData?.activeJobs ?? 0, icon: ClipboardList, trend: { value: 12, isPositive: true } },

@@ -17,6 +17,7 @@ export function Header() {
   const [isScrolled, setIsScrolled] = useState(false)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [mounted, setMounted] = useState(false)
+  const [user, setUser] = useState<any>(null)
 
   useEffect(() => {
     setMounted(true)
@@ -24,6 +25,17 @@ export function Header() {
       setIsScrolled(window.scrollY > 20)
     }
     window.addEventListener("scroll", handleScroll)
+
+    // Check for user session
+    const savedUser = (localStorage.getItem('user') || sessionStorage.getItem('user'))
+    if (savedUser) {
+      try {
+        setUser(JSON.parse(savedUser))
+      } catch (e) {
+        console.error("Failed to parse user", e)
+      }
+    }
+
     return () => window.removeEventListener("scroll", handleScroll)
   }, [])
 
@@ -122,12 +134,20 @@ export function Header() {
 
           {/* Desktop CTA */}
           <div className="hidden lg:flex items-center gap-4">
-            <Button variant="ghost" asChild className="text-sm font-semibold hover:bg-primary/5 rounded-full px-6">
-              <Link href="/login">Sign In</Link>
-            </Button>
-            <Button asChild className="text-sm font-semibold rounded-full px-8 shadow-lg shadow-primary/20 hover:shadow-xl hover:shadow-primary/30 transition-all duration-300">
-              <Link href="/register">Get Started</Link>
-            </Button>
+            {mounted && user ? (
+              <Button asChild className="text-sm font-semibold rounded-full px-8 shadow-lg shadow-primary/20 hover:shadow-xl hover:shadow-primary/30 transition-all duration-300">
+                <Link href={`/${(user.Role || user.role || 'homeowner').toLowerCase()}/dashboard`}>Go to Dashboard</Link>
+              </Button>
+            ) : (
+              <>
+                <Button variant="ghost" asChild className="text-sm font-semibold hover:bg-primary/5 rounded-full px-6">
+                  <Link href="/login">Sign In</Link>
+                </Button>
+                <Button asChild className="text-sm font-semibold rounded-full px-8 shadow-lg shadow-primary/20 hover:shadow-xl hover:shadow-primary/30 transition-all duration-300">
+                  <Link href="/register">Get Started</Link>
+                </Button>
+              </>
+            )}
           </div>
 
           {/* Mobile Menu Button */}
@@ -178,12 +198,20 @@ export function Header() {
                 )
               })}
               <div className="flex flex-col gap-2 mt-4 px-4">
-                <Button variant="outline" asChild className="w-full">
-                  <Link href="/login">Sign In</Link>
-                </Button>
-                <Button asChild className="w-full">
-                  <Link href="/register">Get Started</Link>
-                </Button>
+                {mounted && user ? (
+                  <Button asChild className="w-full">
+                    <Link href={`/${(user.Role || user.role || 'homeowner').toLowerCase()}/dashboard`}>Go to Dashboard</Link>
+                  </Button>
+                ) : (
+                  <>
+                    <Button variant="outline" asChild className="w-full">
+                      <Link href="/login">Sign In</Link>
+                    </Button>
+                    <Button asChild className="w-full">
+                      <Link href="/register">Get Started</Link>
+                    </Button>
+                  </>
+                )}
               </div>
             </nav>
           </div>

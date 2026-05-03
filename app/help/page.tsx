@@ -42,7 +42,7 @@ export default function HelpCenterPage() {
 
   const handleBack = () => {
     // If we have a user in localstorage, figure out their role to go back to the right dashboard
-    const savedUser = localStorage.getItem('user')
+    const savedUser = (localStorage.getItem('user') || sessionStorage.getItem('user'))
     if (savedUser) {
       try {
         const parsed = JSON.parse(savedUser)

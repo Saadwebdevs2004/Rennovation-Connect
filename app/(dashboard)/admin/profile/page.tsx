@@ -24,7 +24,7 @@ export default function AdminProfilePage() {
 
   useEffect(() => {
     setMounted(true)
-    const savedUser = localStorage.getItem('user')
+    const savedUser = (localStorage.getItem('user') || sessionStorage.getItem('user'))
     if (savedUser) {
       const user = JSON.parse(savedUser)
       const userId = user.id || user.UserID
@@ -57,7 +57,7 @@ export default function AdminProfilePage() {
     e.preventDefault()
     setIsSaving(true)
     
-    const savedUser = localStorage.getItem('user')
+    const savedUser = (localStorage.getItem('user') || sessionStorage.getItem('user'))
     if (savedUser) {
       const user = JSON.parse(savedUser)
       const userId = user.id || user.UserID

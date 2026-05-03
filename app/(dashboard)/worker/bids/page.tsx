@@ -59,7 +59,7 @@ export default function WorkerBidsPage() {
   const [currentUser, setCurrentUser] = useState<any>(null)
 
   useEffect(() => {
-    const savedUser = localStorage.getItem('user')
+    const savedUser = (localStorage.getItem('user') || sessionStorage.getItem('user'))
     if (savedUser) {
       setCurrentUser(JSON.parse(savedUser))
     }

@@ -27,7 +27,7 @@ export default function HomeownerJobDetailsPage() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    const savedUser = localStorage.getItem('user')
+    const savedUser = (localStorage.getItem('user') || sessionStorage.getItem('user'))
     if (savedUser && jobId) {
       setLoading(true)
       
@@ -47,6 +47,7 @@ export default function HomeownerJobDetailsPage() {
               budget: { min: jobData.budgetMin, max: jobData.budgetMax },
               status: jobData.status || "open",
               postedAt: new Date(jobData.created_at).toLocaleDateString(),
+              isPaid: !!jobData.isPaid,
             })
           }
 
@@ -175,6 +176,16 @@ export default function HomeownerJobDetailsPage() {
               {job.status === 'open' && (
                 <Button variant="outline" className="w-full" asChild>
                   <Link href={`/homeowner/jobs/${jobId}/edit`}>Edit Job</Link>
+                </Button>
+              )}
+              {job.status === 'completed' && !job.isPaid && (
+                <Button
+                  className="w-full bg-success hover:bg-success/90 text-white shadow-lg shadow-success/20"
+                  asChild
+                >
+                  <Link href={`/homeowner/payments/pay/${jobId}`}>
+                    Process Payment
+                  </Link>
                 </Button>
               )}
               {job.status === 'open' && (

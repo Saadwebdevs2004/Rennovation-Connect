@@ -14,7 +14,7 @@ export default function WorkerProjectsPage() {
   const [loading, setLoading] = useState(true)
 
   const fetchProjects = () => {
-    const savedUser = localStorage.getItem('user')
+    const savedUser = (localStorage.getItem('user') || sessionStorage.getItem('user'))
     if (savedUser) {
       const user = JSON.parse(savedUser)
       const userId = user.id || user.UserID

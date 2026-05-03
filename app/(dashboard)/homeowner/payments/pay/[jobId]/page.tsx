@@ -40,7 +40,7 @@ export default function PaymentCheckoutPage({ params }: { params: Promise<{ jobI
 
   const handlePaymentSuccess = async (method: 'credit_card' | 'manual') => {
     try {
-      const savedUser = localStorage.getItem('user');
+      const savedUser = (localStorage.getItem('user') || sessionStorage.getItem('user'));
       const user = savedUser ? JSON.parse(savedUser) : null;
       const homeownerId = user?.id || user?.UserID || 1;
 

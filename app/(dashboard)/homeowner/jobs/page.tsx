@@ -16,7 +16,7 @@ export default function HomeownerJobsPage() {
 
   useEffect(() => {
     // 1. Get the logged-in homeowner's ID
-    const storedUser = localStorage.getItem('user')
+    const storedUser = (localStorage.getItem('user') || sessionStorage.getItem('user'))
     if (storedUser) {
       const userObj = JSON.parse(storedUser)
       const userId = userObj.id || userObj.UserID || userObj.userId

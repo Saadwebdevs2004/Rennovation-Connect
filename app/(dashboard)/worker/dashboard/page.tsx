@@ -46,7 +46,7 @@ export default function WorkerDashboard() {
   const [userName, setUserName] = useState("Worker")
 
   useEffect(() => {
-    const savedUser = localStorage.getItem('user')
+    const savedUser = (localStorage.getItem('user') || sessionStorage.getItem('user'))
     if (savedUser) {
       const user = JSON.parse(savedUser)
       setUserId(String(user.id || user.UserID || ""))
@@ -54,22 +54,26 @@ export default function WorkerDashboard() {
     }
   }, [])
 
-  const { data: statsData, isLoading: statsLoading } = useSWR(
+  const { data: statsData, error: statsError } = useSWR(
     userId ? `/api/proxy?path=${encodeURIComponent(`/api/stats/worker/${userId}`)}` : null,
     fetcher
   )
 
-  const { data: bidsData, isLoading: bidsLoading } = useSWR(
+  const { data: bidsData, error: bidsError } = useSWR(
     userId ? `/api/proxy?path=${encodeURIComponent(`/api/bids/worker/${userId}`)}` : null,
     fetcher
   )
 
-  const { data: profileData, isLoading: profileLoading } = useSWR(
+  const { data: profileData, error: profileError } = useSWR(
     userId ? `/api/proxy?path=${encodeURIComponent(`/api/worker/profile/${userId}`)}` : null,
     fetcher
   )
 
-  const isLoading = !userId || statsLoading || bidsLoading || profileLoading
+  const isStatsLoading = !statsData && !statsError && userId;
+  const isBidsLoading = !bidsData && !bidsError && userId;
+  const isProfileLoading = !profileData && !profileError && userId;
+
+  const isLoading = !userId || isStatsLoading || isBidsLoading || isProfileLoading;
 
   const stats = [
     { title: "Earnings", value: `RS ${(statsData?.earnings ?? 0).toLocaleString()}`, icon: PkrIcon, description: "This month", trend: { value: 15, isPositive: true } },

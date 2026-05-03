@@ -17,13 +17,38 @@ async function handler(req: NextRequest) {
 
   const targetUrl = `${BACKEND}${path}`
 
+  // Extract auth info from the rc_session cookie
+  const sessionCookie = req.cookies.get('rc_session')
+  let authHeader = ''
+  if (sessionCookie) {
+    try {
+      const decoded = decodeURIComponent(sessionCookie.value)
+      const userData = JSON.parse(decoded)
+      if (userData && (userData.token || userData.Token)) {
+        authHeader = `Bearer ${userData.token || userData.Token}`
+      }
+    } catch (e) {
+      console.error('Failed to parse session cookie for proxy', e)
+    }
+  }
+
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+    'Accept': 'application/json',
+  }
+  if (authHeader) {
+    headers['Authorization'] = authHeader
+  }
+
+  const clientAuth = req.headers.get('authorization')
+  if (clientAuth) {
+    headers['Authorization'] = clientAuth
+  }
+
   try {
     const backendRes = await fetch(targetUrl, {
       method: req.method,
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-      },
+      headers,
       body: req.method !== 'GET' && req.method !== 'HEAD'
         ? await req.text()
         : undefined,

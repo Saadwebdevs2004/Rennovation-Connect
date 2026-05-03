@@ -1,7 +1,7 @@
 "use client"
 import { PkrIcon } from "@/components/ui/pkr-icon"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useMemo } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -45,7 +45,7 @@ export default function WorkerActiveJobsPage() {
   const [selectedJob, setSelectedJob] = useState<any>(null)
 
   useEffect(() => {
-    const savedUser = localStorage.getItem('user')
+    const savedUser = (localStorage.getItem('user') || sessionStorage.getItem('user'))
     if (savedUser) {
       setCurrentUser(JSON.parse(savedUser))
     }
@@ -53,13 +53,15 @@ export default function WorkerActiveJobsPage() {
 
   const userId = currentUser?.id || currentUser?.UserID
 
-  const { data: rawBids, isLoading } = useSWR(
+  const { data: rawBids, error: bidsError } = useSWR(
     userId ? `/api/proxy?path=${encodeURIComponent(`/api/bids/worker/${userId}`)}` : null,
     fetcher,
     { refreshInterval: 5000 }
   )
 
-  const jobs = Array.isArray(rawBids) ? rawBids.filter(b => b.status === "accepted").map(b => ({
+  const isLoading = !userId || (!rawBids && !bidsError);
+
+  const jobs = useMemo(() => Array.isArray(rawBids) ? rawBids.filter((b: any) => b.status === "accepted").map((b: any) => ({
     id: b.id,
     jobId: b.job_id,
     title: b.job_title,
@@ -82,7 +84,7 @@ export default function WorkerActiveJobsPage() {
       { name: "Final verification", completed: b.job_status === 'completed' },
     ],
     notes: b.proposal_text || "No additional notes.",
-  })) : []
+  })) : [], [rawBids])
 
   // Auto-select first job if none selected
   useEffect(() => {

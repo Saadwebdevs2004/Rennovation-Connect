@@ -42,7 +42,7 @@ export default function JobDetailsPage() {
   const handlePlaceBid = async (e: React.FormEvent) => {
     e.preventDefault()
     
-    const savedUser = localStorage.getItem('user')
+    const savedUser = (localStorage.getItem('user') || sessionStorage.getItem('user'))
     if (!savedUser) {
       alert("Please login first.")
       return

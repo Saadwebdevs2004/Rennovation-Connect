@@ -38,6 +38,7 @@ const urgencyOptions = [
 export default function PostJobPage() {
   const router = useRouter()
   const [isLoading, setIsLoading] = useState(false)
+  const [formError, setFormError] = useState<string | null>(null)
   const [userId, setUserId] = useState<string | null>(null)
   const [uploadedFiles, setUploadedFiles] = useState<string[]>([])
   const [formData, setFormData] = useState({
@@ -52,7 +53,7 @@ export default function PostJobPage() {
 
   // Grab the homeowner's ID from memory as soon as the page loads
   useEffect(() => {
-    const storedUser = localStorage.getItem('user')
+    const storedUser = (localStorage.getItem('user') || sessionStorage.getItem('user'))
     if (storedUser) {
       const userObj = JSON.parse(storedUser)
       setUserId(userObj.id || userObj.UserID || userObj.userId)
@@ -85,8 +86,10 @@ export default function PostJobPage() {
       const min = parseInt(formData.budgetMin)
       const max = parseInt(formData.budgetMax)
 
+      setFormError(null)
+
       if (min > max) {
-        alert("Oops! Your minimum budget (RS " + min + ") cannot be higher than your maximum budget (RS " + max + "). Please fix this before posting.")
+        setFormError("Minimum budget cannot be higher than maximum budget.")
         setIsLoading(false)
         return
       }
@@ -240,6 +243,9 @@ export default function PostJobPage() {
               />
             </div>
           </div>
+          {formError && (
+            <p className="text-sm font-medium text-destructive mt-2">{formError}</p>
+          )}
 
           <div className="space-y-2">
             <Label htmlFor="urgency">Timeline</Label>

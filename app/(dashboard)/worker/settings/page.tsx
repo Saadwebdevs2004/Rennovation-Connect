@@ -13,7 +13,7 @@ export default function WorkerSettingsPage() {
   const [activeTab, setActiveTab] = useState("profile")
 
   useEffect(() => {
-    const savedUser = localStorage.getItem('user')
+    const savedUser = (localStorage.getItem('user') || sessionStorage.getItem('user'))
     if (savedUser) {
       const parsed = JSON.parse(savedUser)
       const id = parsed.id || parsed.UserID
@@ -51,7 +51,7 @@ export default function WorkerSettingsPage() {
       
       if (res.ok) {
         // Update LocalStorage
-        const savedUser = localStorage.getItem('user')
+        const savedUser = (localStorage.getItem('user') || sessionStorage.getItem('user'))
         if (savedUser) {
           const parsed = JSON.parse(savedUser)
           parsed.fullName = user.name
