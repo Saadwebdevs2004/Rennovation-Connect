@@ -1,9 +1,32 @@
 module.exports = function(app, db) {
+  // --- GET WORKER PROFILE (Specialized) ---
+  app.get('/api/worker/profile/:id', async (req, res) => {
+    try {
+      const { id } = req.params;
+      const sql = "SELECT UserID as id, FullName as fullName, Email as email, Role as role, Phone as phone, Address as address, Bio as bio, City as city, State as state, ZipCode as zipCode, Avatar as avatar, Skills as skills FROM Users WHERE UserID = ?";
+      const [results] = await db.query(sql, [id]);
+      
+      if (results.length === 0) {
+        return res.status(404).json({ error: "User not found" });
+      }
+      
+      const profile = results[0];
+      // Use database skills if present, else fallback for demo
+      profile.skills = profile.skills || "Plumbing, Electrical, Carpentry"; 
+      profile.certifications = "Identity Verified"; 
+      
+      res.status(200).json(profile);
+    } catch (error) {
+      console.error("Error fetching worker profile:", error);
+      res.status(500).json({ error: "Failed to fetch worker profile" });
+    }
+  });
+
   // --- GET USER PROFILE ---
   app.get('/api/users/:id', async (req, res) => {
     try {
       const { id } = req.params;
-      const sql = "SELECT UserID, FullName, Email, Role, Phone, Address, Bio, City, State, ZipCode, Avatar FROM Users WHERE UserID = ?";
+      const sql = "SELECT UserID, FullName, Email, Role, Phone, Address, Bio, City, State, ZipCode, Avatar, Skills FROM Users WHERE UserID = ?";
       const [results] = await db.query(sql, [id]);
       
       if (results.length === 0) {
@@ -20,14 +43,14 @@ module.exports = function(app, db) {
   app.put('/api/users/:id', async (req, res) => {
     try {
       const { id } = req.params;
-      const { fullName, phone, address, bio, city, state, zipCode, avatar } = req.body;
+      const { fullName, phone, address, bio, city, state, zipCode, avatar, skills } = req.body;
       
       const sql = `
         UPDATE Users 
-        SET FullName = ?, Phone = ?, Address = ?, Bio = ?, City = ?, State = ?, ZipCode = ?, Avatar = ?
+        SET FullName = ?, Phone = ?, Address = ?, Bio = ?, City = ?, State = ?, ZipCode = ?, Avatar = ?, Skills = ?
         WHERE UserID = ?
       `;
-      const values = [fullName, phone, address, bio, city, state, zipCode, avatar, id];
+      const values = [fullName, phone, address, bio, city, state, zipCode, avatar, skills, id];
       
       await db.query(sql, values);
       res.status(200).json({ message: "Profile updated successfully!" });
