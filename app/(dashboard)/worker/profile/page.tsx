@@ -136,7 +136,13 @@ export default function WorkerProfilePage() {
             fullName: `${formData.firstName} ${formData.lastName}`,
             email: formData.email
           }
-          localStorage.setItem('user', JSON.stringify(updatedUser))
+          const isSession = !!sessionStorage.getItem('user')
+          const isLocal = !!localStorage.getItem('user')
+          if (isSession && !isLocal) {
+            sessionStorage.setItem('user', JSON.stringify(updatedUser))
+          } else {
+            localStorage.setItem('user', JSON.stringify(updatedUser))
+          }
           setSaveSuccess(true)
           setTimeout(() => setSaveSuccess(false), 3000)
         }

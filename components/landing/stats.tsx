@@ -4,7 +4,7 @@ const stats = [
   { value: "50K+", label: "Projects Completed", description: "Successful renovations" },
   { value: "15K+", label: "Verified Pros", description: "Licensed professionals" },
   { value: "98%", label: "Satisfaction Rate", description: "Happy customers" },
-  { value: "$25M+", label: "Paid to Workers", description: "In secure payments" },
+  { value: "RS 5B+", label: "Paid to Workers", description: "In secure payments" },
 ]
 
 export function Stats() {

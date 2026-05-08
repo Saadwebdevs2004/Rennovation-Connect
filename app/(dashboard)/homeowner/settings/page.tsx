@@ -50,13 +50,19 @@ export default function HomeownerSettingsPage() {
       })
       
       if (res.ok) {
-        // Update LocalStorage
+        // Update LocalStorage or SessionStorage based on original login
+        const isSession = !!sessionStorage.getItem('user')
+        const isLocal = !!localStorage.getItem('user')
         const savedUser = (localStorage.getItem('user') || sessionStorage.getItem('user'))
         if (savedUser) {
           const parsed = JSON.parse(savedUser)
           parsed.fullName = user.name
           parsed.email = user.email
-          localStorage.setItem('user', JSON.stringify(parsed))
+          if (isSession && !isLocal) {
+            sessionStorage.setItem('user', JSON.stringify(parsed))
+          } else {
+            localStorage.setItem('user', JSON.stringify(parsed))
+          }
         }
         alert("Settings saved successfully!")
       } else {

@@ -53,6 +53,11 @@ export default function EditJobPage() {
         const data = await response.json()
         
         if (response.ok) {
+          if (data.status && data.status !== 'open') {
+            alert("This job is no longer open and cannot be edited.")
+            router.push(`/homeowner/jobs/${jobId}`)
+            return
+          }
           setFormData({
             title: data.title || "",
             category: data.category || "",

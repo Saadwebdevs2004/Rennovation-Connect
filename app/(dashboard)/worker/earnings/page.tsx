@@ -22,22 +22,23 @@ import {
   Clock,
   CreditCard,
   Building2,
+  Eye
 } from "lucide-react"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
 
 export default function WorkerEarningsPage() {
   const [transactions, setTransactions] = useState<any[]>([])
   const [pendingApprovals, setPendingApprovals] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
+  const [selectedReceipt, setSelectedReceipt] = useState<string | null>(null)
 
-  // Chart placeholder since we aren't tracking full historical data yet
-  const monthlyEarnings = [
-    { month: "Oct", amount: 0 },
-    { month: "Nov", amount: 0 },
-    { month: "Dec", amount: 0 },
-    { month: "Jan", amount: 0 },
-    { month: "Feb", amount: 0 },
-    { month: "Mar", amount: 0 },
-  ]
+  // We will dynamically compute this below
 
   const fetchEarningsData = () => {
     const savedUser = (localStorage.getItem('user') || sessionStorage.getItem('user'))
@@ -58,6 +59,7 @@ export default function WorkerEarningsPage() {
                 amount: t.amount || 0,
                 status: t.status || "processing",
                 date: new Date(t.created_at).toLocaleDateString(),
+                rawDate: new Date(t.created_at),
                 paymentMethod: t.method === 'manual' ? 'Bank Transfer' : 'Credit Card',
               })))
             }
@@ -108,6 +110,42 @@ export default function WorkerEarningsPage() {
     .reduce((acc, t) => acc + parseFloat(t.amount || 0), 0)
 
   const avgJobValue = transactions.length > 0 ? Math.round(totalEarnings / transactions.length) : 0
+
+  // Compute monthly earnings dynamically based on transactions
+  const generateMonthlyEarnings = () => {
+    const months: { month: string, year: number, monthNum: number, amount: number }[] = [];
+    const today = new Date();
+    
+    // Generate the last 6 months
+    for (let i = 5; i >= 0; i--) {
+      const d = new Date(today.getFullYear(), today.getMonth() - i, 1);
+      months.push({
+        month: d.toLocaleString('default', { month: 'short' }),
+        year: d.getFullYear(),
+        monthNum: d.getMonth(),
+        amount: 0
+      });
+    }
+
+    // Add up completed transactions
+    transactions.forEach(t => {
+      if (t.status === 'completed' && t.rawDate) {
+        const tMonth = t.rawDate.getMonth();
+        const tYear = t.rawDate.getFullYear();
+        
+        // Find if this transaction belongs to our 6-month window
+        const targetMonth = months.find(m => m.monthNum === tMonth && m.year === tYear);
+        if (targetMonth) {
+          targetMonth.amount += parseFloat(t.amount || 0);
+        }
+      }
+    });
+
+    return months;
+  };
+
+  const monthlyEarnings = generateMonthlyEarnings();
+  const maxMonthlyEarning = Math.max(...monthlyEarnings.map(m => m.amount), 1);
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -216,20 +254,29 @@ export default function WorkerEarningsPage() {
         <Card className="lg:col-span-2 border-border/50">
           <CardHeader>
             <CardTitle>Earnings Overview</CardTitle>
-            <CardDescription>Your earnings tracking will populate here</CardDescription>
+            <CardDescription>Your earnings over the last 6 months</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="h-64 flex items-end gap-2">
-              {monthlyEarnings.map((month) => (
-                <div key={month.month} className="flex-1 flex flex-col items-center gap-2">
-                  <div className="w-full relative">
-                    <div className="w-full bg-primary/10 rounded-t-lg" style={{ height: `10px` }}></div>
+              {monthlyEarnings.map((month) => {
+                const heightPercent = Math.max((month.amount / maxMonthlyEarning) * 100, 2); // At least 2% height
+                return (
+                  <div key={`${month.month}-${month.year}`} className="flex-1 flex flex-col items-center justify-end gap-2 h-full">
+                    <span className="text-xs font-semibold text-primary truncate max-w-full px-1">
+                      {month.amount > 0 ? `RS ${month.amount >= 1000 ? (month.amount/1000).toFixed(1) + 'k' : month.amount}` : ''}
+                    </span>
+                    <div className="w-full relative h-[200px] flex items-end justify-center">
+                      <div 
+                        className="w-full max-w-[40px] bg-primary/30 hover:bg-primary/50 transition-colors rounded-t-sm" 
+                        style={{ height: `${heightPercent}%` }}
+                      ></div>
+                    </div>
+                    <span className="text-xs text-muted-foreground">{month.month}</span>
                   </div>
-                  <span className="text-xs text-muted-foreground">{month.month}</span>
-                </div>
-              ))}
+                )
+              })}
             </div>
-            <p className="text-center text-sm text-muted-foreground mt-4">Historical chart data will become available as you complete more jobs over time.</p>
+            <p className="text-center text-sm text-muted-foreground mt-4">Dynamic chart based on completed transactions.</p>
           </CardContent>
         </Card>
 
@@ -278,10 +325,18 @@ export default function WorkerEarningsPage() {
                     <p className="text-sm text-muted-foreground">Client: {payment.homeowner_name}</p>
                     <p className="text-sm text-muted-foreground">Amount: RS {payment.amount}</p>
                   </div>
-                  <Button onClick={() => handleApprovePayment(payment.id)} className="shrink-0 bg-success hover:bg-success/90 text-success-foreground">
-                    <CheckCircle2 className="w-4 h-4 mr-2" />
-                    Approve Payment
-                  </Button>
+                  <div className="flex items-center gap-2">
+                    {payment.receipt_image_url && (
+                      <Button variant="outline" onClick={() => setSelectedReceipt(payment.receipt_image_url)}>
+                        <Eye className="w-4 h-4 mr-2" />
+                        View Receipt
+                      </Button>
+                    )}
+                    <Button onClick={() => handleApprovePayment(payment.id)} className="shrink-0 bg-success hover:bg-success/90 text-success-foreground">
+                      <CheckCircle2 className="w-4 h-4 mr-2" />
+                      Approve Payment
+                    </Button>
+                  </div>
                 </div>
               ))}
             </div>
@@ -348,6 +403,24 @@ export default function WorkerEarningsPage() {
           </div>
         </CardContent>
       </Card>
+    
+      <Dialog open={!!selectedReceipt} onOpenChange={(open) => !open && setSelectedReceipt(null)}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Payment Receipt</DialogTitle>
+            <DialogDescription>
+              Proof of payment uploaded by the homeowner.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="py-4">
+            {selectedReceipt && (
+              <div className="rounded-xl border border-border overflow-hidden">
+                <img src={selectedReceipt} alt="Payment Receipt" className="w-full h-auto object-cover" />
+              </div>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

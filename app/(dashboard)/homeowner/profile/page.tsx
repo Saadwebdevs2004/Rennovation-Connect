@@ -85,13 +85,19 @@ export default function HomeownerProfilePage() {
         })
         
         if (res.ok) {
-          // Update LocalStorage so the Header/Sidebar update too
+          // Update LocalStorage or SessionStorage so the Header/Sidebar update too
           const updatedUser = {
             ...user,
             fullName: `${formData.firstName} ${formData.lastName}`,
             email: formData.email
           }
-          localStorage.setItem('user', JSON.stringify(updatedUser))
+          const isSession = !!sessionStorage.getItem('user')
+          const isLocal = !!localStorage.getItem('user')
+          if (isSession && !isLocal) {
+            sessionStorage.setItem('user', JSON.stringify(updatedUser))
+          } else {
+            localStorage.setItem('user', JSON.stringify(updatedUser))
+          }
           setSaveSuccess(true)
           setTimeout(() => setSaveSuccess(false), 3000)
         }

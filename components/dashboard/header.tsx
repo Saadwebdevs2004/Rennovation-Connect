@@ -114,7 +114,13 @@ export function DashboardHeader({ role, user: propUser, onMenuClick }: HeaderPro
                   name: userData.FullName || userData.fullName || prev.name,
                   email: userData.Email || userData.email || prev.email
                 }));
-                localStorage.setItem('user', JSON.stringify({ ...parsed, fullName: userData.FullName, email: userData.Email }));
+                const isSession = !!sessionStorage.getItem('user');
+                const isLocal = !!localStorage.getItem('user');
+                if (isSession && !isLocal) {
+                  sessionStorage.setItem('user', JSON.stringify({ ...parsed, fullName: userData.FullName, email: userData.Email }));
+                } else {
+                  localStorage.setItem('user', JSON.stringify({ ...parsed, fullName: userData.FullName, email: userData.Email }));
+                }
               }
             }
 

@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button"
 const pressReleases = [
   {
     date: "Mar 15, 2024",
-    title: "Renovation Connect Raises $50M Series B for Global Expansion",
+    title: "Renovation Connect Raises RS 10B Series B for Global Expansion",
     link: "#"
   },
   {

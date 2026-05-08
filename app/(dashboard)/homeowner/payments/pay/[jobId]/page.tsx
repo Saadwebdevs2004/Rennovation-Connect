@@ -38,7 +38,7 @@ export default function PaymentCheckoutPage({ params }: { params: Promise<{ jobI
       })
   }, [jobId])
 
-  const handlePaymentSuccess = async (method: 'credit_card' | 'manual') => {
+  const handlePaymentSuccess = async (method: 'credit_card' | 'manual', receiptUrl?: string) => {
     try {
       const savedUser = (localStorage.getItem('user') || sessionStorage.getItem('user'));
       const user = savedUser ? JSON.parse(savedUser) : null;
@@ -59,7 +59,8 @@ export default function PaymentCheckoutPage({ params }: { params: Promise<{ jobI
           worker_id: job.workerId,
           amount: job.amount,
           method: method,
-          status: status
+          status: status,
+          receipt_image_url: receiptUrl || "https://images.unsplash.com/photo-1620714223084-8fcacc6dfd8d?q=80&w=600&auto=format&fit=crop" // Simulated receipt
         })
       });
 
@@ -130,7 +131,7 @@ export default function PaymentCheckoutPage({ params }: { params: Promise<{ jobI
               <ManualTransferForm 
                 amount={job.amount} 
                 jobTitle={job.title}
-                onSuccess={() => handlePaymentSuccess('manual')}
+                onSuccess={(url) => handlePaymentSuccess('manual', url)}
               />
             </TabsContent>
           </Tabs>

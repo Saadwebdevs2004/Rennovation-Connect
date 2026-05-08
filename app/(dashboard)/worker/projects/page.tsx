@@ -6,12 +6,25 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Progress } from "@/components/ui/progress"
-import { Calendar, MapPin, MessageSquare, CheckCircle, Clock } from "lucide-react"
+import { Calendar, MapPin, MessageSquare, CheckCircle, Clock, UploadCloud } from "lucide-react"
 import Link from "next/link"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
+import { Input } from "@/components/ui/input"
 
 export default function WorkerProjectsPage() {
   const [projects, setProjects] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
+  
+  // Proof of work modal state
+  const [selectedJobId, setSelectedJobId] = useState<string | null>(null)
+  const [proofImage, setProofImage] = useState<string | null>(null)
+  const [isSubmittingProof, setIsSubmittingProof] = useState(false)
 
   const fetchProjects = () => {
     const savedUser = (localStorage.getItem('user') || sessionStorage.getItem('user'))
@@ -24,18 +37,30 @@ export default function WorkerProjectsPage() {
           .then(res => res.json())
           .then(data => {
             if (Array.isArray(data)) {
-              const activeProjects = data.filter(b => b.status === "accepted").map(b => ({
-                id: b.id,
-                jobId: b.job_id,
-                title: b.job_title,
-                client: "Homeowner", 
-                location: "Local",
-                amount: b.amount,
-                startDate: new Date(b.created_at).toLocaleDateString(),
-                status: b.job_status === 'completed' ? 'Completed' : 'In Progress',
-                progress: b.job_status === 'completed' ? 100 : 35,
-                nextMilestone: b.job_status === 'completed' ? 'Finished' : 'Rough-in inspection',
-              }))
+              const activeProjects = data.filter(b => b.status === "accepted").map(b => {
+                let progressValue = 10;
+                let nextMilestoneStr = 'Site Visit';
+                const pStatus = b.job_progress_status || 'Started';
+                if (pStatus === 'Site Visit') { progressValue = 25; nextMilestoneStr = '40% Completed'; }
+                if (pStatus === '40% Completed') { progressValue = 40; nextMilestoneStr = '50% Completed'; }
+                if (pStatus === '50% Completed') { progressValue = 50; nextMilestoneStr = 'Pending Verification'; }
+                if (pStatus === 'Pending Verification') { progressValue = 80; nextMilestoneStr = 'Waiting for Homeowner'; }
+                if (b.job_status === 'completed' || pStatus === 'Completed') { progressValue = 100; nextMilestoneStr = 'Finished'; }
+
+                return {
+                  id: b.id,
+                  jobId: b.job_id,
+                  title: b.job_title,
+                  client: "Homeowner", 
+                  location: "Local",
+                  amount: b.amount,
+                  startDate: new Date(b.created_at).toLocaleDateString(),
+                  status: b.job_status === 'completed' ? 'Completed' : 'In Progress',
+                  progress_status: pStatus,
+                  progress: progressValue,
+                  nextMilestone: nextMilestoneStr,
+                }
+              })
               setProjects(activeProjects)
             }
             setLoading(false)
@@ -59,14 +84,69 @@ export default function WorkerProjectsPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ status: "completed" })
       });
+      await fetch(`/api/proxy?path=${encodeURIComponent(`/api/jobs/${jobId}/progress`)}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ progress_status: "Completed" })
+      });
       if (response.ok) {
-        // Refresh the projects list to show updated status
         fetchProjects();
       }
     } catch (error) {
       console.error("Failed to mark complete:", error);
     }
   }
+
+  const handleUpdateProgress = async (jobId: string, progress_status: string) => {
+    try {
+      const response = await fetch(`/api/proxy?path=${encodeURIComponent(`/api/jobs/${jobId}/progress`)}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ progress_status })
+      });
+      if (response.ok) {
+        if (progress_status === 'Completed') {
+          await handleMarkComplete(jobId);
+        } else {
+          fetchProjects();
+        }
+      }
+    } catch (error) {
+      console.error("Failed to update progress:", error);
+    }
+  }
+
+  const handleSubmitProof = async () => {
+    if (!selectedJobId) return;
+    setIsSubmittingProof(true);
+    try {
+      const response = await fetch(`/api/proxy?path=${encodeURIComponent(`/api/jobs/${selectedJobId}/progress`)}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ 
+          progress_status: "Pending Verification",
+          completion_image_url: proofImage || "https://images.unsplash.com/photo-1581094794329-c8112a89af12?q=80&w=600&auto=format&fit=crop" // Simulated Image
+        })
+      });
+      if (response.ok) {
+        setSelectedJobId(null);
+        setProofImage(null);
+        fetchProjects();
+      }
+    } catch (error) {
+      console.error("Failed to submit proof:", error);
+    } finally {
+      setIsSubmittingProof(false);
+    }
+  }
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      // Simulate file upload by creating a local object URL
+      const url = URL.createObjectURL(e.target.files[0]);
+      setProofImage(url);
+    }
+  };
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -127,15 +207,37 @@ export default function WorkerProjectsPage() {
                       Message Client
                     </Link>
                   </Button>
-                  <Button 
-                    variant="outline" 
-                    className="flex-1" 
-                    onClick={() => handleMarkComplete(project.jobId)}
-                    disabled={project.status === 'Completed'}
-                  >
-                    <CheckCircle className="w-4 h-4 mr-2" />
-                    {project.status === 'Completed' ? 'Completed' : 'Mark Complete'}
-                  </Button>
+                  {project.status !== 'Completed' ? (
+                    project.nextMilestone === 'Pending Verification' ? (
+                      <Button 
+                        variant="default" 
+                        className="flex-1" 
+                        onClick={() => setSelectedJobId(project.jobId)}
+                      >
+                        <CheckCircle className="w-4 h-4 mr-2" />
+                        Submit for Verification
+                      </Button>
+                    ) : project.nextMilestone === 'Waiting for Homeowner' ? (
+                      <Button variant="outline" className="flex-1" disabled>
+                        <Clock className="w-4 h-4 mr-2" />
+                        Waiting for Approval
+                      </Button>
+                    ) : (
+                      <Button 
+                        variant="outline" 
+                        className="flex-1" 
+                        onClick={() => handleUpdateProgress(project.jobId, project.nextMilestone)}
+                      >
+                        <CheckCircle className="w-4 h-4 mr-2" />
+                        Mark {project.nextMilestone}
+                      </Button>
+                    )
+                  ) : (
+                    <Button variant="outline" className="flex-1" disabled>
+                      <CheckCircle className="w-4 h-4 mr-2" />
+                      Completed
+                    </Button>
+                  )}
                 </div>
               </CardContent>
             </Card>
@@ -157,6 +259,50 @@ export default function WorkerProjectsPage() {
           </CardContent>
         </Card>
       )}
+
+      <Dialog open={!!selectedJobId} onOpenChange={(open) => !open && setSelectedJobId(null)}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Submit Proof of Work</DialogTitle>
+            <DialogDescription>
+              Upload an optional photo of the completed job to notify the homeowner. Once they verify it, the job will be officially completed and you'll receive payment.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="border-2 border-dashed border-border rounded-xl p-8 text-center hover:bg-muted/50 transition-colors cursor-pointer relative">
+              <Input 
+                type="file" 
+                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" 
+                onChange={handleFileChange}
+                accept="image/*"
+              />
+              <div className="flex flex-col items-center gap-2 text-muted-foreground">
+                <UploadCloud className="w-8 h-8 mb-2" />
+                {proofImage ? (
+                  <span className="font-medium text-primary">Image Selected Ready to Submit</span>
+                ) : (
+                  <>
+                    <span className="font-medium">Click to upload or drag and drop (Optional)</span>
+                    <span className="text-xs">JPG, PNG (max. 5MB)</span>
+                  </>
+                )}
+              </div>
+            </div>
+            {proofImage && (
+              <div className="h-40 rounded-xl border border-border overflow-hidden">
+                <img src={proofImage} alt="Proof preview" className="w-full h-full object-cover" />
+              </div>
+            )}
+            <Button 
+              className="w-full" 
+              onClick={handleSubmitProof}
+              disabled={isSubmittingProof}
+            >
+              {isSubmittingProof ? "Submitting..." : "Submit to Homeowner"}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

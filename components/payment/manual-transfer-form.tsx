@@ -8,11 +8,12 @@ import { CheckCircle2, Loader2, UploadCloud, Building } from "lucide-react";
 interface ManualTransferFormProps {
   amount: number;
   jobTitle: string;
-  onSuccess: () => void;
+  onSuccess: (receiptUrl?: string) => void;
 }
 
 export function ManualTransferForm({ amount, jobTitle, onSuccess }: ManualTransferFormProps) {
   const [file, setFile] = useState<File | null>(null);
+  const [fileUrl, setFileUrl] = useState<string | null>(null);
   const [reference, setReference] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
@@ -20,12 +21,12 @@ export function ManualTransferForm({ amount, jobTitle, onSuccess }: ManualTransf
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       setFile(e.target.files[0]);
+      setFileUrl(URL.createObjectURL(e.target.files[0]));
     }
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!file) return;
 
     setIsProcessing(true);
 
@@ -35,7 +36,7 @@ export function ManualTransferForm({ amount, jobTitle, onSuccess }: ManualTransf
       setIsSuccess(true);
       
       setTimeout(() => {
-        onSuccess();
+        onSuccess(fileUrl || undefined);
       }, 2500);
     }, 1500);
   };
@@ -87,13 +88,12 @@ export function ManualTransferForm({ amount, jobTitle, onSuccess }: ManualTransf
 
       <form onSubmit={handleSubmit} className="space-y-6">
         <div className="space-y-2">
-          <label className="text-sm font-medium">Upload Payment Receipt</label>
+          <label className="text-sm font-medium">Upload Payment Receipt (Optional)</label>
           <div className="border-2 border-dashed border-border rounded-xl p-8 text-center hover:bg-muted/50 transition-colors cursor-pointer relative">
             <Input 
               type="file" 
               className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" 
               onChange={handleFileChange}
-              required
               accept="image/*,.pdf"
             />
             <div className="flex flex-col items-center gap-2 text-muted-foreground">
@@ -124,7 +124,7 @@ export function ManualTransferForm({ amount, jobTitle, onSuccess }: ManualTransf
         <Button 
           type="submit" 
           className="w-full h-12 text-lg font-semibold" 
-          disabled={!file || isProcessing}
+          disabled={isProcessing}
         >
           {isProcessing ? (
             <>

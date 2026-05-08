@@ -22,6 +22,7 @@ import {
   User,
   CreditCard,
   HelpCircle,
+  Star,
 } from "lucide-react"
 
 export type UserRole = "homeowner" | "worker" | "admin"
@@ -45,6 +46,7 @@ const workerNavItems = [
   { icon: FileText, label: "Projects", href: "/worker/projects" },
   { icon: MessageSquare, label: "Messages", href: "/worker/messages" },
   { icon: CreditCard, label: "Earnings", href: "/worker/earnings" },
+  { icon: Star, label: "Reviews", href: "/worker/reviews" },
 ]
 
 const adminNavItems = [
