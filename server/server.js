@@ -8,6 +8,7 @@ const statsRoutes = require('./routes/stats');
 const notificationsRoutes = require('./routes/notifications');
 const userRoutes = require('./routes/users');
 const paymentsRoutes = require('./routes/payments');
+const reviewsRoutes = require('./routes/reviews');
 
 const app = express();
 const PORT = 3001;
@@ -26,6 +27,7 @@ statsRoutes(app, db);
 notificationsRoutes(app, db);
 userRoutes(app, db);
 paymentsRoutes(app, db);
+reviewsRoutes(app, db);
 
 // Test Route: Check if the server is running
 app.get('/', (req, res) => {
@@ -66,7 +68,8 @@ app.get('/api/jobs/homeowner/:id', async (req, res) => {
         const sql = `
             SELECT j.*, 
                    (SELECT COUNT(*) FROM bids b WHERE b.job_id = j.id) as bidsCount,
-                   EXISTS(SELECT 1 FROM payments p WHERE p.job_id = j.id AND (p.status = 'completed' OR p.status = 'pending_approval')) as isPaid
+                   EXISTS(SELECT 1 FROM payments p WHERE p.job_id = j.id AND (p.status = 'completed' OR p.status = 'pending_approval')) as isPaid,
+                   EXISTS(SELECT 1 FROM reviews r WHERE r.job_id = j.id AND r.reviewer_id = j.homeownerId) as hasReviewed
             FROM jobs j 
             WHERE j.homeownerId = ? 
             ORDER BY j.created_at DESC
@@ -114,7 +117,8 @@ app.get('/api/jobs/:id', async (req, res) => {
         // Join with bids to find the workerId for accepted jobs
         const sql = `
             SELECT j.*, b.worker_id as workerId,
-                   EXISTS(SELECT 1 FROM payments p WHERE p.job_id = j.id AND (p.status = 'completed' OR p.status = 'pending_approval')) as isPaid
+                   EXISTS(SELECT 1 FROM payments p WHERE p.job_id = j.id AND (p.status = 'completed' OR p.status = 'pending_approval')) as isPaid,
+                   EXISTS(SELECT 1 FROM reviews r WHERE r.job_id = j.id AND r.reviewer_id = j.homeownerId) as hasReviewed
             FROM jobs j 
             LEFT JOIN bids b ON j.id = b.job_id AND b.status = 'accepted'
             WHERE j.id = ?
@@ -171,6 +175,23 @@ app.put('/api/jobs/:id/status', async (req, res) => {
     } catch (error) {
         console.error("Error updating job status:", error);
         res.status(500).json({ error: "Failed to update job status" });
+    }
+});
+
+// --- UPDATE JOB PROGRESS ---
+app.put('/api/jobs/:id/progress', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { progress_status, completion_image_url } = req.body;
+        if (completion_image_url) {
+            await db.query("UPDATE jobs SET progress_status = ?, completion_image_url = ? WHERE id = ?", [progress_status, completion_image_url, id]);
+        } else {
+            await db.query("UPDATE jobs SET progress_status = ? WHERE id = ?", [progress_status, id]);
+        }
+        res.status(200).json({ message: "Job progress updated successfully!" });
+    } catch (error) {
+        console.error("Error updating job progress:", error);
+        res.status(500).json({ error: "Failed to update job progress" });
     }
 });
 

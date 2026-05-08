@@ -3,9 +3,9 @@ module.exports = function(app, db) {
   app.post('/api/payments', async (req, res) => {
     try {
       console.log("POST /api/payments called with:", req.body);
-      const { job_id, homeowner_id, worker_id, amount, method, status } = req.body;
-      const sql = "INSERT INTO payments (job_id, homeowner_id, worker_id, amount, method, status) VALUES (?, ?, ?, ?, ?, ?)";
-      const values = [job_id, homeowner_id, worker_id, amount, method, status];
+      const { job_id, homeowner_id, worker_id, amount, method, status, receipt_image_url } = req.body;
+      const sql = "INSERT INTO payments (job_id, homeowner_id, worker_id, amount, method, status, receipt_image_url) VALUES (?, ?, ?, ?, ?, ?, ?)";
+      const values = [job_id, homeowner_id, worker_id, amount, method, status, receipt_image_url || null];
       
       const [result] = await db.query(sql, values);
       console.log("Payment recorded result:", result);

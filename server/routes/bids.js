@@ -52,7 +52,7 @@ module.exports = function(app, db) {
     try {
       const { workerId } = req.params;
       const sql = `
-        SELECT b.*, j.title as job_title, j.status as job_status,
+        SELECT b.*, j.title as job_title, j.status as job_status, j.progress_status as job_progress_status,
                EXISTS(SELECT 1 FROM payments p WHERE p.job_id = j.id AND (p.status = 'completed' OR p.status = 'pending_approval')) as isPaid
         FROM bids b 
         JOIN jobs j ON b.job_id = j.id 
