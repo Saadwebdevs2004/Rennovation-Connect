@@ -1,11 +1,14 @@
 "use client"
 
-import { useState, useEffect } from "react" // Added useEffect
-import { useRouter } from "next/navigation" // Added for logout
+import { useState, useEffect } from "react"
+import { useRouter } from "next/navigation"
 import Link from "next/link"
+import useSWR from 'swr'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { Badge } from "@/components/ui/badge"
 import { removeUserCookie } from "@/lib/auth-cookies"
+import { Skeleton } from "@/components/ui/skeleton"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -17,7 +20,7 @@ import {
 import {
   Bell,
   Menu,
-  User,
+  User as UserIcon,
   Settings,
   LogOut,
   HelpCircle,
@@ -25,6 +28,7 @@ import {
   MessageSquare,
   FileText,
   CreditCard,
+  Sparkles,
 } from "lucide-react"
 import { UserRole } from "./sidebar"
 
@@ -38,307 +42,192 @@ interface HeaderProps {
   onMenuClick?: () => void
 }
 
+const fetcher = (url: string) => fetch(url).then(res => res.json())
+
 export function DashboardHeader({ role, user: propUser, onMenuClick }: HeaderProps) {
   const router = useRouter()
   const [mounted, setMounted] = useState(false)
-  const [currentUser, setCurrentUser] = useState({ id: null, name: "User", email: "" })
-  const [notifications, setNotifications] = useState<any[]>([])
-  const [randomGreeting, setRandomGreeting] = useState("Hello")
-  const [randomSubGreeting, setRandomSubGreeting] = useState("Welcome back")
+  const [greeting, setGreeting] = useState({ main: "Hello", sub: "Welcome back" })
 
-  // 1. Handle Hydration and LocalStorage
+  // Get user from local storage for initial key
+  const getUserId = () => {
+    if (typeof window === 'undefined') return null;
+    const savedUser = localStorage.getItem('user') || sessionStorage.getItem('user');
+    if (!savedUser) return null;
+    const parsed = JSON.parse(savedUser);
+    return parsed.id || parsed.UserID;
+  }
+
+  const userId = getUserId();
+
+  // Optimized Fetching with SWR
+  const { data: userData } = useSWR(
+    userId ? `/api/proxy?path=${encodeURIComponent(`/api/users/${userId}`)}` : null,
+    fetcher,
+    { revalidateOnFocus: false }
+  )
+
+  const { data: notifications, mutate: mutateNotifications } = useSWR(
+    userId ? `/api/proxy?path=${encodeURIComponent(`/api/notifications/${userId}`)}` : null,
+    fetcher,
+    { refreshInterval: 30000 } // Refresh every 30 seconds
+  )
+
   useEffect(() => {
     setMounted(true)
-    const savedUser = (localStorage.getItem('user') || sessionStorage.getItem('user'))
     
-    // Set Dynamic Greetings
+    // Set Dynamic Greetings once on mount
     const hour = new Date().getHours();
-    let gPool = ["Hello"];
-    let sPool = ["Your command center is active"];
-    
-    if (hour >= 5 && hour < 8) {
-      gPool = ["Early Bird", "Rise and Shine", "Good Morning", "Morning Glow"];
-      sPool = ["The early professional gets the job", "Coffee is ready, let's work", "Morning inspiration has arrived"];
-    } else if (hour >= 8 && hour < 12) {
-      gPool = ["Good Morning", "Happy Morning", "Great start", "Top of the morning"];
-      sPool = ["Let's make today productive", "Ready for a breakthrough day?", "Your morning agenda is waiting"];
-    } else if (hour >= 12 && hour < 17) {
-      gPool = ["Good Afternoon", "Productive Afternoon", "Hello", "Mid-day check-in"];
-      sPool = ["Making great progress today", "The afternoon hustle is on", "Keep up the momentum"];
-    } else if (hour >= 17 && hour < 21) {
-      gPool = ["Good Evening", "Happy Evening", "Welcome back", "Evening session"];
-      sPool = ["Wrapping up a great day?", "The evening shift is live", "Time to reflect and plan"];
-    } else if (hour >= 21 || hour < 1) {
-      gPool = ["Good Night", "Quiet Evening", "Still working?", "Late session"];
-      sPool = ["Your nocturnal workspace is ready", "Burning the midnight oil?", "Peaceful productivity"];
-    } else {
-      gPool = ["Late Night Vibes", "Night Owl", "Working late?", "Deep work mode"];
-      sPool = ["Focus is highest at this hour", "The world sleeps, you build", "Quiet hours command center"];
-    }
-    
-    setRandomGreeting(gPool[Math.floor(Math.random() * gPool.length)]);
-    setRandomSubGreeting(sPool[Math.floor(Math.random() * sPool.length)]);
-
-    if (savedUser) {
-      try {
-        const parsed = JSON.parse(savedUser)
-        const userId = parsed.id || parsed.UserID
-        if (!userId) return;
-
-        // Set initial data immediately
-        setCurrentUser({
-          id: userId,
-          name: parsed.fullName || parsed.name || "User",
-          email: parsed.email || ""
-        })
-        
-        const timestamp = new Date().getTime();
-        
-        // Parallel Data Fetching for speed
-        const loadDashboardData = async () => {
-          try {
-            const [userRes, notifyRes] = await Promise.all([
-              fetch(`/api/proxy?path=${encodeURIComponent(`/api/users/${userId}`)}`),
-              fetch(`/api/proxy?path=${encodeURIComponent(`/api/notifications/${userId}`)}`, { 
-                cache: 'no-store',
-                headers: { 'Pragma': 'no-cache', 'Cache-Control': 'no-cache' }
-              })
-            ]);
-
-            // Handle User Sync
-            if (userRes.ok) {
-              const userData = await userRes.json();
-              if (userData && !userData.error) {
-                setCurrentUser(prev => ({
-                  ...prev,
-                  name: userData.FullName || userData.fullName || prev.name,
-                  email: userData.Email || userData.email || prev.email
-                }));
-                const isSession = !!sessionStorage.getItem('user');
-                const isLocal = !!localStorage.getItem('user');
-                if (isSession && !isLocal) {
-                  sessionStorage.setItem('user', JSON.stringify({ ...parsed, fullName: userData.FullName, email: userData.Email }));
-                } else {
-                  localStorage.setItem('user', JSON.stringify({ ...parsed, fullName: userData.FullName, email: userData.Email }));
-                }
-              }
-            }
-
-            // Handle Notifications
-            if (notifyRes.ok) {
-              const notifyData = await notifyRes.json();
-              if (Array.isArray(notifyData)) {
-                setNotifications(notifyData.map(n => ({
-                  id: n.id,
-                  type: n.type,
-                  title: n.title,
-                  description: n.description,
-                  time: new Date(n.created_at).toLocaleDateString(),
-                  read: n.is_read
-                })));
-              }
-            }
-          } catch (err) {
-            console.error("Dashboard Data Load Error:", err);
-          }
-        };
-
-        loadDashboardData();
-      } catch (e) {
-        console.error("Storage Parse Error:", e);
-      }
-    }
+    if (hour < 12) setGreeting({ main: "Good Morning", sub: "Ready for a productive start?" });
+    else if (hour < 17) setGreeting({ main: "Good Afternoon", sub: "Keeping the momentum high" });
+    else setGreeting({ main: "Good Evening", sub: "Wrapping up your day" });
   }, [])
 
-  const unreadCount = notifications.filter(n => !n.read).length
-
-  const handleMarkAllRead = () => {
-    if (currentUser.id) {
-      fetch(`/api/proxy?path=${encodeURIComponent(`/api/notifications/user/${currentUser.id}/read-all`)}`, { 
-        method: 'PUT',
-        cache: 'no-store'
-      })
-        .then(() => {
-          setNotifications(notifications.map(n => ({ ...n, read: true })))
-        })
-        .catch(err => console.error("Failed to mark notifications as read:", err))
-    }
-  }
-
-  // 2. Handle Logout
   const handleLogout = () => {
     localStorage.removeItem('user')
-    sessionStorage.removeItem('user') // CLEAR SESSION STORAGE AS WELL
-    removeUserCookie() // CLEAR SECURE COOKIE AS WELL
-    setNotifications([]) // CLEAR NOTIFICATIONS STATE IMMEDIATELY
-    setCurrentUser({ id: null, name: "User", email: "" })
-    window.location.href = '/login' // Force a full navigation to ensure clean state
+    sessionStorage.removeItem('user')
+    removeUserCookie()
+    window.location.href = '/login'
   }
 
-  const getNotificationIcon = (type: string) => {
-    switch (type) {
-      case "bid": return FileText
-      case "message": return MessageSquare
-      case "payment": return CreditCard
-      default: return Bell
-    }
-  }
+  const unreadCount = Array.isArray(notifications) ? notifications.filter((n: any) => !n.is_read).length : 0
+  const displayName = userData?.FullName || userData?.fullName || propUser?.name || "User"
+  const displayEmail = userData?.Email || userData?.email || propUser?.email || ""
 
-  // Prevent flash of wrong data
-  const displayName = mounted ? currentUser.name : "Loading..."
-  const displayEmail = mounted ? currentUser.email : "..."
+  // Prevent Radix ID Mismatches by not rendering ID-dependent components until mount
+  if (!mounted) {
+    return (
+      <header className="sticky top-0 z-30 h-20 glass border-b border-border/50 shadow-sm">
+        <div className="flex items-center justify-between h-full px-6 lg:px-8">
+          <div className="flex items-center gap-4">
+            <Button variant="ghost" size="icon" className="lg:hidden" onClick={onMenuClick}>
+              <Menu className="w-5 h-5" />
+            </Button>
+            <div className="hidden sm:flex flex-col space-y-2">
+              <Skeleton className="h-6 w-32" />
+              <Skeleton className="h-3 w-48" />
+            </div>
+          </div>
+          <div className="flex items-center gap-3">
+            <Skeleton className="w-10 h-10 rounded-full" />
+            <Skeleton className="w-32 h-10 rounded-xl" />
+          </div>
+        </div>
+      </header>
+    )
+  }
 
   return (
-    <header className="sticky top-0 z-30 h-20 glass border-b border-border/50 shadow-[0_4px_24px_oklch(0_0_0/0.02)]">
+    <header className="sticky top-0 z-30 h-20 glass border-b border-border/50 shadow-sm">
       <div className="flex items-center justify-between h-full px-6 lg:px-8">
-        {/* Left Side - Dynamic Greeting */}
         <div className="flex items-center gap-4">
-          <Button
-            variant="ghost"
-            size="icon"
-            className="lg:hidden"
-            onClick={onMenuClick}
-          >
+          <Button variant="ghost" size="icon" className="lg:hidden" onClick={onMenuClick}>
             <Menu className="w-5 h-5" />
           </Button>
 
           <div className="hidden sm:flex flex-col">
-            <h2 className="text-xl font-bold tracking-tight text-foreground">
-              {randomGreeting}, <span className="text-gradient font-black">{displayName.split(' ')[0]}</span>
+            <h2 className="text-xl font-bold tracking-tight text-foreground flex items-center gap-2">
+              {greeting.main}, <span className="text-primary font-black">{displayName.split(' ')[0]}</span>
+              <Sparkles className="w-4 h-4 text-primary animate-pulse" />
             </h2>
             <p className="text-[10px] text-muted-foreground font-black uppercase tracking-[0.2em] opacity-60">
-              {randomSubGreeting}
+              {greeting.sub}
             </p>
           </div>
         </div>
 
-        {/* Right Side */}
-        <div className="flex items-center gap-2">
-
+        <div className="flex items-center gap-3">
           {/* Notifications */}
-          {mounted ? (
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon" className="relative">
-                  <Bell className="w-5 h-5" />
-                  {unreadCount > 0 && (
-                    <span className="absolute -top-0.5 -right-0.5 w-5 h-5 text-xs font-medium rounded-full bg-primary text-primary-foreground flex items-center justify-center">
-                      {unreadCount}
-                    </span>
-                  )}
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-80">
-                <DropdownMenuLabel className="flex items-center justify-between">
-                  <span>Notifications</span>
-                  <Button 
-                    variant="ghost" 
-                    size="sm" 
-                    className="h-auto p-0 text-xs text-primary"
-                    onClick={handleMarkAllRead}
-                  >
-                    Mark all as read
-                  </Button>
-                </DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <div className="max-h-80 overflow-y-auto">
-                  {notifications.map((notification) => {
-                    const Icon = getNotificationIcon(notification.type)
-                    return (
-                      <DropdownMenuItem key={notification.id} className="flex items-start gap-3 p-3 cursor-pointer">
-                        <div className={`w-9 h-9 rounded-full flex items-center justify-center shrink-0 ${
-                          notification.read ? "bg-muted" : "bg-primary/10"
-                        }`}>
-                          <Icon className={`w-4 h-4 ${notification.read ? "text-muted-foreground" : "text-primary"}`} />
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="icon" className="relative group">
+                <Bell className="w-5 h-5 group-hover:rotate-12 transition-transform" />
+                {unreadCount > 0 && (
+                  <span className="absolute -top-0.5 -right-0.5 w-5 h-5 text-[10px] font-bold rounded-full bg-primary text-primary-foreground flex items-center justify-center shadow-lg shadow-primary/20 border-2 border-background">
+                    {unreadCount}
+                  </span>
+                )}
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-80 p-0 rounded-2xl overflow-hidden shadow-2xl border-border/50">
+              <div className="p-4 bg-primary/5 border-b border-border/50 flex items-center justify-between">
+                <span className="font-bold">Notifications</span>
+                {unreadCount > 0 && (
+                  <Badge variant="secondary" className="bg-primary/10 text-primary border-none">{unreadCount} New</Badge>
+                )}
+              </div>
+              <div className="max-h-80 overflow-y-auto">
+                {Array.isArray(notifications) && notifications.length > 0 ? (
+                  notifications.map((n: any) => (
+                    <DropdownMenuItem key={n.id} className="p-4 border-b border-border/10 last:border-0 cursor-pointer hover:bg-muted/50 transition-colors">
+                      <div className="flex gap-4">
+                        <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${n.is_read ? 'bg-muted' : 'bg-primary/10'}`}>
+                          <Bell className={`w-4 h-4 ${n.is_read ? 'text-muted-foreground' : 'text-primary'}`} />
                         </div>
-                        <div className="flex-1 min-w-0">
-                          <p className={`text-sm ${notification.read ? "text-muted-foreground" : "font-medium text-foreground"}`}>
-                            {notification.title}
-                          </p>
-                          <p className="text-xs text-muted-foreground truncate">{notification.description}</p>
-                          <p className="text-xs text-muted-foreground mt-1">{notification.time}</p>
+                        <div className="space-y-1 overflow-hidden">
+                          <p className={`text-sm leading-tight ${n.is_read ? 'text-muted-foreground' : 'font-bold text-foreground'}`}>{n.title}</p>
+                          <p className="text-xs text-muted-foreground line-clamp-1">{n.description}</p>
+                          <p className="text-[10px] font-medium text-muted-foreground/60">{new Date(n.created_at).toLocaleDateString()}</p>
                         </div>
-                        {!notification.read && (
-                          <div className="w-2 h-2 rounded-full bg-primary shrink-0 mt-2" />
-                        )}
-                      </DropdownMenuItem>
-                    )
-                  })}
-                </div>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          ) : (
-            <Button variant="ghost" size="icon" className="relative">
-              <Bell className="w-5 h-5" />
-            </Button>
-          )}
+                      </div>
+                    </DropdownMenuItem>
+                  ))
+                ) : (
+                  <div className="p-8 text-center space-y-2">
+                    <Bell className="w-8 h-8 text-muted/30 mx-auto" />
+                    <p className="text-sm text-muted-foreground">All caught up!</p>
+                  </div>
+                )}
+              </div>
+            </DropdownMenuContent>
+          </DropdownMenu>
 
-          {/* User Menu - UPDATED WITH DYNAMIC DATA */}
-          {mounted ? (
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="flex items-center gap-2 pl-2 pr-3">
-                  <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center overflow-hidden">
-                    {propUser?.avatar ? (
-                      <img src={propUser.avatar} alt={displayName} className="w-8 h-8 object-cover" />
-                    ) : (
-                      <User className="w-4 h-4 text-primary" />
-                    )}
-                  </div>
-                  <div className="hidden md:block text-left">
-                    <p className="text-sm font-bold text-foreground">{displayName}</p>
-                    <p className="text-[10px] text-primary uppercase font-black tracking-widest leading-none mt-0.5">{role}</p>
-                  </div>
-                  <ChevronDown className="w-4 h-4 text-muted-foreground hidden md:block" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-56">
-                <DropdownMenuLabel>
-                  <div>
-                    <p className="font-medium">{displayName}</p>
-                    <p className="text-xs text-muted-foreground font-normal">{displayEmail}</p>
-                  </div>
-                </DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem asChild>
-                  <Link href={`/${role}/profile`} className="cursor-pointer">
-                    <User className="w-4 h-4 mr-2" />
-                    Profile
-                  </Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                  <Link href={`/${role}/settings`} className="cursor-pointer">
-                    <Settings className="w-4 h-4 mr-2" />
-                    Settings
-                  </Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                  <Link href="/help" className="cursor-pointer">
-                    <HelpCircle className="w-4 h-4 mr-2" />
-                    Help Center
-                  </Link>
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem 
-                  className="text-destructive cursor-pointer"
-                  onSelect={handleLogout}
-                >
-                  <LogOut className="w-4 h-4 mr-2" />
-                  Log Out
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          ) : (
-            <Button variant="ghost" className="flex items-center gap-2 pl-2 pr-3">
-              <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center overflow-hidden">
-                <User className="w-4 h-4 text-primary" />
-              </div>
-              <div className="hidden md:block text-left">
-                <p className="text-sm font-medium">Loading...</p>
-                <p className="text-xs text-muted-foreground capitalize">{role}</p>
-              </div>
-            </Button>
-          )}
+          {/* User Menu */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" className="flex items-center gap-3 pl-2 pr-4 h-12 rounded-2xl hover:bg-primary/5 transition-all">
+                <div className="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center overflow-hidden border border-primary/20 shadow-inner">
+                  {propUser?.avatar ? (
+                    <img src={propUser.avatar} alt={displayName} className="w-full h-full object-cover" />
+                  ) : (
+                    <UserIcon className="w-5 h-5 text-primary" />
+                  )}
+                </div>
+                <div className="hidden md:block text-left">
+                  <p className="text-sm font-bold text-foreground leading-none mb-1">{displayName}</p>
+                  <p className="text-[10px] text-primary uppercase font-black tracking-widest opacity-70">{role}</p>
+                </div>
+                <ChevronDown className="w-4 h-4 text-muted-foreground hidden md:block opacity-40" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-64 p-2 rounded-2xl shadow-2xl border-border/50">
+              <DropdownMenuLabel className="p-3">
+                <p className="font-bold text-base">{displayName}</p>
+                <p className="text-xs text-muted-foreground font-medium">{displayEmail}</p>
+              </DropdownMenuLabel>
+              <DropdownMenuSeparator className="my-1" />
+              <DropdownMenuItem asChild className="rounded-xl p-3 cursor-pointer">
+                <Link href={`/${role}/profile`}>
+                  <UserIcon className="w-4 h-4 mr-3 text-primary" />
+                  <span className="font-medium">My Profile</span>
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild className="rounded-xl p-3 cursor-pointer">
+                <Link href={`/${role}/settings`}>
+                  <Settings className="w-4 h-4 mr-3 text-primary" />
+                  <span className="font-medium">Account Settings</span>
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuSeparator className="my-1" />
+              <DropdownMenuItem 
+                className="rounded-xl p-3 cursor-pointer text-destructive focus:bg-destructive/10 focus:text-destructive"
+                onSelect={handleLogout}
+              >
+                <LogOut className="w-4 h-4 mr-3" />
+                <span className="font-bold">Sign Out</span>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </div>
     </header>

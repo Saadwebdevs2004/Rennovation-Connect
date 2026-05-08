@@ -44,10 +44,8 @@ export default function PaymentCheckoutPage({ params }: { params: Promise<{ jobI
       const user = savedUser ? JSON.parse(savedUser) : null;
       const homeownerId = user?.id || user?.UserID || 1;
 
-      // Status logic: 
-      // Credit Card is instantly completed
-      // Manual Transfer goes to 'pending_approval' for worker to approve
-      const status = method === 'credit_card' ? 'completed' : 'pending_approval';
+      // All payments now require worker verification for the two-sided flow
+      const status = 'pending_approval';
 
       // Record the payment in the backend
       const response = await fetch('/api/proxy?path=%2Fapi%2Fpayments', {

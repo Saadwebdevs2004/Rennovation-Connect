@@ -1,10 +1,13 @@
 "use client"
-import { PkrIcon } from "@/components/ui/pkr-icon"
 
+import { PkrIcon } from "@/components/ui/pkr-icon"
 import { useState, useEffect } from "react"
+import useSWR from "swr"
+import { cn } from "@/lib/utils"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
+import { Skeleton } from "@/components/ui/skeleton"
 import {
   Select,
   SelectContent,
@@ -22,7 +25,9 @@ import {
   Clock,
   CreditCard,
   Building2,
-  Eye
+  Eye,
+  Wallet,
+  Plus
 } from "lucide-react"
 import {
   Dialog,
@@ -32,74 +37,42 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog"
 
+const fetcher = (url: string) => fetch(url).then(res => res.json())
+
 export default function WorkerEarningsPage() {
-  const [transactions, setTransactions] = useState<any[]>([])
-  const [pendingApprovals, setPendingApprovals] = useState<any[]>([])
-  const [loading, setLoading] = useState(true)
+  const [userId, setUserId] = useState<string | null>(null)
   const [selectedReceipt, setSelectedReceipt] = useState<string | null>(null)
 
-  // We will dynamically compute this below
-
-  const fetchEarningsData = () => {
+  useEffect(() => {
     const savedUser = (localStorage.getItem('user') || sessionStorage.getItem('user'))
     if (savedUser) {
       const user = JSON.parse(savedUser)
-      const userId = user.id || user.UserID
-      
-      if (userId) {
-        // Fetch all transactions
-        fetch(`/api/proxy?path=${encodeURIComponent(`/api/payments/worker/${userId}`)}`)
-          .then(res => res.json())
-          .then(data => {
-            if (Array.isArray(data)) {
-              setTransactions(data.map((t: any) => ({
-                id: t.id,
-                job: t.job_title || "Unknown Job",
-                client: t.homeowner_name || "Homeowner",
-                amount: t.amount || 0,
-                status: t.status || "processing",
-                date: new Date(t.created_at).toLocaleDateString(),
-                rawDate: new Date(t.created_at),
-                paymentMethod: t.method === 'manual' ? 'Bank Transfer' : 'Credit Card',
-              })))
-            }
-            setLoading(false)
-          })
-          .catch(err => {
-            console.error("Failed to fetch payments:", err)
-            setLoading(false)
-          })
-
-        // Fetch pending manual approvals
-        fetch(`/api/proxy?path=${encodeURIComponent(`/api/payments/pending/${userId}`)}`)
-          .then(res => res.json())
-          .then(data => {
-            if (Array.isArray(data)) {
-              setPendingApprovals(data);
-            }
-          })
-          .catch(err => console.error("Failed to fetch pending approvals:", err));
-      }
+      setUserId(String(user.id || user.UserID || ""))
     }
-  }
-
-  useEffect(() => {
-    fetchEarningsData()
   }, [])
 
-  const handleApprovePayment = async (paymentId: number) => {
-    try {
-      const res = await fetch(`/api/proxy?path=${encodeURIComponent(`/api/payments/${paymentId}/approve`)}`, {
-        method: 'PUT'
-      });
-      if (res.ok) {
-        // Refresh data
-        fetchEarningsData();
-      }
-    } catch (error) {
-      console.error("Error approving payment:", error);
-    }
-  }
+  // SWR for Transactions
+  const { data: rawTransactions, mutate: mutateTransactions, isValidating: isTransactionsValidating } = useSWR(
+    userId ? `/api/proxy?path=${encodeURIComponent(`/api/payments/worker/${userId}`)}` : null,
+    fetcher
+  )
+
+  // SWR for Pending Approvals
+  const { data: pendingApprovals, mutate: mutatePending } = useSWR(
+    userId ? `/api/proxy?path=${encodeURIComponent(`/api/payments/pending/${userId}`)}` : null,
+    fetcher
+  )
+
+  const transactions = Array.isArray(rawTransactions) ? rawTransactions.map((t: any) => ({
+    id: t.id,
+    job: t.job_title || "Unknown Job",
+    client: t.homeowner_name || "Homeowner",
+    amount: t.amount || 0,
+    status: t.status || "processing",
+    date: new Date(t.created_at).toLocaleDateString(),
+    rawDate: new Date(t.created_at),
+    paymentMethod: t.method === 'manual' ? 'Bank Transfer' : 'Credit Card',
+  })) : []
 
   const totalEarnings = transactions.reduce((acc, t) => acc + parseFloat(t.amount || 0), 0)
   const completedEarnings = transactions
@@ -111,316 +84,302 @@ export default function WorkerEarningsPage() {
 
   const avgJobValue = transactions.length > 0 ? Math.round(totalEarnings / transactions.length) : 0
 
-  // Compute monthly earnings dynamically based on transactions
+  const handleApprovePayment = async (paymentId: number) => {
+    try {
+      const res = await fetch(`/api/proxy?path=${encodeURIComponent(`/api/payments/${paymentId}/approve`)}`, {
+        method: 'PUT'
+      });
+      if (res.ok) {
+        mutateTransactions();
+        mutatePending();
+      }
+    } catch (error) {
+      console.error("Error approving payment:", error);
+    }
+  }
+
+  // Monthly Chart Logic (Fast)
   const generateMonthlyEarnings = () => {
     const months: { month: string, year: number, monthNum: number, amount: number }[] = [];
     const today = new Date();
-    
-    // Generate the last 6 months
     for (let i = 5; i >= 0; i--) {
       const d = new Date(today.getFullYear(), today.getMonth() - i, 1);
-      months.push({
-        month: d.toLocaleString('default', { month: 'short' }),
-        year: d.getFullYear(),
-        monthNum: d.getMonth(),
-        amount: 0
-      });
+      months.push({ month: d.toLocaleString('default', { month: 'short' }), year: d.getFullYear(), monthNum: d.getMonth(), amount: 0 });
     }
-
-    // Add up completed transactions
     transactions.forEach(t => {
       if (t.status === 'completed' && t.rawDate) {
-        const tMonth = t.rawDate.getMonth();
-        const tYear = t.rawDate.getFullYear();
-        
-        // Find if this transaction belongs to our 6-month window
-        const targetMonth = months.find(m => m.monthNum === tMonth && m.year === tYear);
-        if (targetMonth) {
-          targetMonth.amount += parseFloat(t.amount || 0);
-        }
+        const targetMonth = months.find(m => m.monthNum === t.rawDate.getMonth() && m.year === t.rawDate.getFullYear());
+        if (targetMonth) targetMonth.amount += parseFloat(t.amount || 0);
       }
     });
-
     return months;
   };
 
   const monthlyEarnings = generateMonthlyEarnings();
   const maxMonthlyEarning = Math.max(...monthlyEarnings.map(m => m.amount), 1);
 
+  if (!userId && !rawTransactions) {
+    return (
+      <div className="space-y-6">
+        <Skeleton className="h-10 w-48" />
+        <div className="grid sm:grid-cols-4 gap-4">
+          {[1,2,3,4].map(i => <Skeleton key={i} className="h-32 rounded-xl" />)}
+        </div>
+        <Skeleton className="h-64 rounded-2xl" />
+      </div>
+    )
+  }
+
   return (
-    <div className="space-y-6 animate-fade-in">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-semibold text-foreground">Earnings</h1>
-          <p className="text-muted-foreground mt-1">Track your income and payments</p>
+    <div className="space-y-8 animate-fade-in pb-12">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6">
+        <div className="space-y-1">
+          <h1 className="text-3xl font-black text-foreground tracking-tight">Earnings Console</h1>
+          <p className="text-muted-foreground font-medium flex items-center gap-2">
+            <Wallet className="w-4 h-4 text-primary" />
+            Managing your professional revenue
+          </p>
         </div>
         <div className="flex gap-3">
           <Select defaultValue="all-time">
-            <SelectTrigger className="w-40">
-              <Calendar className="h-4 w-4 mr-2" />
+            <SelectTrigger className="w-44 h-12 rounded-2xl shadow-sm border-border/50">
+              <Calendar className="h-4 w-4 mr-2 text-primary" />
               <SelectValue placeholder="Period" />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className="rounded-xl">
               <SelectItem value="this-month">This Month</SelectItem>
               <SelectItem value="last-month">Last Month</SelectItem>
-              <SelectItem value="this-year">This Year</SelectItem>
-              <SelectItem value="all-time">All Time</SelectItem>
+              <SelectItem value="all-time">All Time History</SelectItem>
             </SelectContent>
           </Select>
-          <Button variant="outline">
+          <Button variant="outline" className="h-12 rounded-2xl border-border/50 font-bold px-6">
             <Download className="h-4 w-4 mr-2" />
-            Export
+            Export CSV
           </Button>
         </div>
       </div>
 
       {/* Stats Cards */}
-      <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card className="border-border/50">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-muted-foreground">Total Earnings</p>
-                <p className="text-2xl font-bold text-foreground mt-1">RS {totalEarnings.toLocaleString()}</p>
-                <div className="flex items-center gap-1 mt-2 text-sm text-success">
-                  <TrendingUp className="h-4 w-4" />
-                  <span>Based on all transactions</span>
-                </div>
-              </div>
-              <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center">
-                <PkrIcon className="h-6 w-6 text-primary" />
-              </div>
+      <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <Card className="rounded-3xl border-none shadow-xl shadow-primary/5 bg-gradient-to-br from-primary/10 to-transparent">
+          <CardContent className="p-7 space-y-4">
+            <div className="w-12 h-12 bg-primary rounded-2xl flex items-center justify-center shadow-lg shadow-primary/20">
+              <PkrIcon className="h-6 w-6 text-white" />
+            </div>
+            <div>
+              <p className="text-xs font-black text-muted-foreground uppercase tracking-widest mb-1">Total Balance</p>
+              <p className="text-3xl font-black text-foreground">RS {totalEarnings.toLocaleString()}</p>
             </div>
           </CardContent>
         </Card>
 
-        <Card className="border-border/50">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-muted-foreground">Completed</p>
-                <p className="text-2xl font-bold text-foreground mt-1">RS {completedEarnings.toLocaleString()}</p>
-                <p className="text-sm text-muted-foreground mt-2">
-                  {transactions.filter((t) => t.status === "completed").length} jobs paid
-                </p>
-              </div>
-              <div className="w-12 h-12 bg-success/10 rounded-xl flex items-center justify-center">
-                <CheckCircle2 className="h-6 w-6 text-success" />
-              </div>
+        <Card className="rounded-3xl border-border/50 shadow-sm">
+          <CardContent className="p-7 space-y-4">
+            <div className="w-12 h-12 bg-success/10 rounded-2xl flex items-center justify-center">
+              <CheckCircle2 className="h-6 w-6 text-success" />
+            </div>
+            <div>
+              <p className="text-xs font-black text-muted-foreground uppercase tracking-widest mb-1">Withdrawn</p>
+              <p className="text-3xl font-black text-foreground">RS {completedEarnings.toLocaleString()}</p>
             </div>
           </CardContent>
         </Card>
 
-        <Card className="border-border/50">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-muted-foreground">Pending</p>
-                <p className="text-2xl font-bold text-foreground mt-1">RS {pendingEarnings.toLocaleString()}</p>
-                <p className="text-sm text-muted-foreground mt-2">
-                  {transactions.filter((t) => t.status !== "completed").length} payments processing
-                </p>
-              </div>
-              <div className="w-12 h-12 bg-warning/10 rounded-xl flex items-center justify-center">
-                <Clock className="h-6 w-6 text-warning" />
-              </div>
+        <Card className="rounded-3xl border-border/50 shadow-sm">
+          <CardContent className="p-7 space-y-4">
+            <div className="w-12 h-12 bg-warning/10 rounded-2xl flex items-center justify-center">
+              <Clock className="h-6 w-6 text-warning" />
+            </div>
+            <div>
+              <p className="text-xs font-black text-muted-foreground uppercase tracking-widest mb-1">In Escrow</p>
+              <p className="text-3xl font-black text-foreground">RS {pendingEarnings.toLocaleString()}</p>
             </div>
           </CardContent>
         </Card>
 
-        <Card className="border-border/50">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-muted-foreground">Avg. Job Value</p>
-                <p className="text-2xl font-bold text-foreground mt-1">
-                  RS {avgJobValue.toLocaleString()}
-                </p>
-                <div className="flex items-center gap-1 mt-2 text-sm text-muted-foreground">
-                  <ArrowUpRight className="h-4 w-4" />
-                  <span>Per accepted job</span>
-                </div>
-              </div>
-              <div className="w-12 h-12 bg-accent/10 rounded-xl flex items-center justify-center">
-                <ArrowUpRight className="h-6 w-6 text-accent" />
-              </div>
+        <Card className="rounded-3xl border-border/50 shadow-sm">
+          <CardContent className="p-7 space-y-4">
+            <div className="w-12 h-12 bg-accent/10 rounded-2xl flex items-center justify-center">
+              <ArrowUpRight className="h-6 w-6 text-accent" />
+            </div>
+            <div>
+              <p className="text-xs font-black text-muted-foreground uppercase tracking-widest mb-1">Avg. Per Job</p>
+              <p className="text-3xl font-black text-foreground">RS {avgJobValue.toLocaleString()}</p>
             </div>
           </CardContent>
         </Card>
       </div>
 
-      <div className="grid lg:grid-cols-3 gap-6">
-        {/* Earnings Chart */}
-        <Card className="lg:col-span-2 border-border/50">
-          <CardHeader>
-            <CardTitle>Earnings Overview</CardTitle>
-            <CardDescription>Your earnings over the last 6 months</CardDescription>
+      {/* Main Content Area */}
+      <div className="grid lg:grid-cols-3 gap-8">
+        <Card className="lg:col-span-2 rounded-[2.5rem] border-border/50 shadow-sm overflow-hidden">
+          <CardHeader className="p-8 pb-4">
+            <CardTitle className="text-xl font-black">Revenue Timeline</CardTitle>
+            <CardDescription className="font-medium">Earnings trend over the last 6 cycles</CardDescription>
           </CardHeader>
-          <CardContent>
-            <div className="h-64 flex items-end gap-2">
+          <CardContent className="p-8">
+            <div className="h-64 flex items-end gap-3">
               {monthlyEarnings.map((month) => {
-                const heightPercent = Math.max((month.amount / maxMonthlyEarning) * 100, 2); // At least 2% height
+                const heightPercent = Math.max((month.amount / maxMonthlyEarning) * 100, 4);
                 return (
-                  <div key={`${month.month}-${month.year}`} className="flex-1 flex flex-col items-center justify-end gap-2 h-full">
-                    <span className="text-xs font-semibold text-primary truncate max-w-full px-1">
-                      {month.amount > 0 ? `RS ${month.amount >= 1000 ? (month.amount/1000).toFixed(1) + 'k' : month.amount}` : ''}
-                    </span>
-                    <div className="w-full relative h-[200px] flex items-end justify-center">
+                  <div key={`${month.month}-${month.year}`} className="flex-1 flex flex-col items-center justify-end h-full gap-3 group">
+                    <div className="relative w-full flex items-end justify-center h-full">
                       <div 
-                        className="w-full max-w-[40px] bg-primary/30 hover:bg-primary/50 transition-colors rounded-t-sm" 
+                        className="w-full max-w-[48px] bg-primary/20 group-hover:bg-primary transition-all duration-500 rounded-2xl border border-primary/10" 
                         style={{ height: `${heightPercent}%` }}
-                      ></div>
+                      >
+                        <div className="absolute -top-10 left-1/2 -translate-x-1/2 bg-foreground text-background px-3 py-1.5 rounded-xl text-[10px] font-black opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap shadow-xl">
+                          RS {month.amount.toLocaleString()}
+                        </div>
+                      </div>
                     </div>
-                    <span className="text-xs text-muted-foreground">{month.month}</span>
+                    <span className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">{month.month}</span>
                   </div>
                 )
               })}
             </div>
-            <p className="text-center text-sm text-muted-foreground mt-4">Dynamic chart based on completed transactions.</p>
           </CardContent>
         </Card>
 
-        {/* Payment Methods */}
-        <Card className="border-border/50">
-          <CardHeader>
-            <CardTitle>Payment Methods</CardTitle>
-            <CardDescription>Your connected accounts</CardDescription>
+        <Card className="rounded-[2.5rem] border-border/50 shadow-sm">
+          <CardHeader className="p-8">
+            <CardTitle className="text-xl font-black">Payment Details</CardTitle>
+            <CardDescription className="font-medium">Verified payout accounts</CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="p-4 border border-border rounded-lg">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center">
-                  <Building2 className="h-5 w-5 text-primary" />
-                </div>
-                <div className="flex-1">
-                  <p className="font-medium text-foreground">Standard Bank</p>
-                  <p className="text-sm text-muted-foreground">Connected to Account</p>
-                </div>
-                <Badge variant="secondary" className="text-success">Primary</Badge>
+          <CardContent className="p-8 pt-0 space-y-6">
+            <div className="p-6 rounded-3xl bg-muted/20 border border-border/50 flex items-center gap-5">
+              <div className="w-14 h-10 bg-background rounded-lg border border-border flex items-center justify-center">
+                <Building2 className="h-6 w-6 text-primary" />
               </div>
+              <div className="flex-1">
+                <p className="font-bold text-foreground">Standard Bank</p>
+                <p className="text-xs text-muted-foreground font-medium">•••• 4242</p>
+              </div>
+              <Badge className="bg-success text-white border-none text-[10px] uppercase font-black tracking-widest px-3">Active</Badge>
             </div>
-            <Button variant="outline" className="w-full">
-              Add Payment Method
+            <Button variant="outline" className="w-full h-14 rounded-2xl font-black text-sm uppercase tracking-widest border-dashed border-2 hover:border-primary hover:text-primary transition-all">
+              <Plus className="mr-2 w-4 h-4" /> Connect Bank Account
             </Button>
           </CardContent>
         </Card>
       </div>
 
-      {/* Pending Approvals */}
-      {pendingApprovals.length > 0 && (
-        <Card className="border-warning/50 shadow-md">
-          <CardHeader className="bg-warning/5">
-            <CardTitle className="text-warning-foreground flex items-center gap-2">
-              <Clock className="w-5 h-5" />
-              Manual Transfers Pending Approval
-            </CardTitle>
-            <CardDescription>Homeowners have uploaded receipts for these jobs. Please verify the funds are in your account before approving.</CardDescription>
-          </CardHeader>
-          <CardContent className="p-0">
-            <div className="divide-y divide-border">
-              {pendingApprovals.map((payment) => (
-                <div key={payment.id} className="p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                  <div>
-                    <h4 className="font-semibold">{payment.job_title}</h4>
-                    <p className="text-sm text-muted-foreground">Client: {payment.homeowner_name}</p>
-                    <p className="text-sm text-muted-foreground">Amount: RS {payment.amount}</p>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    {payment.receipt_image_url && (
-                      <Button variant="outline" onClick={() => setSelectedReceipt(payment.receipt_image_url)}>
-                        <Eye className="w-4 h-4 mr-2" />
-                        View Receipt
-                      </Button>
-                    )}
-                    <Button onClick={() => handleApprovePayment(payment.id)} className="shrink-0 bg-success hover:bg-success/90 text-success-foreground">
-                      <CheckCircle2 className="w-4 h-4 mr-2" />
-                      Approve Payment
-                    </Button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-      )}
-
-      {/* Transactions */}
-      <Card className="border-border/50">
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <div>
-              <CardTitle>Recent Transactions</CardTitle>
-              <CardDescription>Your payment history</CardDescription>
-            </div>
+      {/* Transaction History */}
+      <Card className="rounded-[2.5rem] border-border/50 shadow-sm overflow-hidden">
+        <CardHeader className="p-8 flex flex-row items-center justify-between border-b border-border/50">
+          <div>
+            <CardTitle className="text-xl font-black">History (Recent Transactions)</CardTitle>
+            <CardDescription className="font-medium">Every payment tracked and verified</CardDescription>
           </div>
+          {isTransactionsValidating && <Loader2 className="w-5 h-5 animate-spin text-primary opacity-50" />}
         </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            {loading ? (
-              <p className="text-center text-muted-foreground py-4">Loading transactions...</p>
-            ) : transactions.length === 0 ? (
-              <p className="text-center text-muted-foreground py-4">No transactions found.</p>
-            ) : (
-              transactions.map((transaction) => (
-                <div
-                  key={transaction.id}
-                  className="flex items-center justify-between p-4 bg-muted/30 rounded-lg hover:bg-muted/50 transition-colors"
-                >
-                  <div className="flex items-center gap-4">
-                    <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center">
-                      <PkrIcon className="h-5 w-5 text-primary" />
+        <CardContent className="p-0">
+          <div className="divide-y divide-border/50">
+            {transactions.length > 0 ? (
+              transactions.map((t) => (
+                <div key={t.id} className="p-6 hover:bg-muted/30 transition-all flex flex-col md:flex-row md:items-center justify-between gap-6">
+                  <div className="flex items-center gap-5">
+                    <div className="w-14 h-14 bg-primary/5 rounded-2xl flex items-center justify-center shrink-0 border border-primary/10 shadow-inner">
+                      <PkrIcon className="h-6 w-6 text-primary" />
                     </div>
                     <div>
-                      <p className="font-medium text-foreground">{transaction.job}</p>
-                      <p className="text-sm text-muted-foreground">
-                        {transaction.client} • {transaction.date}
-                      </p>
+                      <h4 className="font-black text-foreground text-lg leading-tight">{t.job}</h4>
+                      <p className="text-sm text-muted-foreground font-medium mt-1">Client: {t.client} • {t.date}</p>
                     </div>
                   </div>
-                  <div className="flex items-center gap-4">
-                    <Badge
-                      variant="outline"
-                      className={
-                        transaction.status === "completed"
-                          ? "bg-success/10 text-success border-success/20"
-                          : transaction.status === "pending"
-                          ? "bg-warning/10 text-warning-foreground border-warning/20"
-                          : "bg-primary/10 text-primary border-primary/20"
-                      }
-                    >
-                      {transaction.status === "completed" && <CheckCircle2 className="h-3 w-3 mr-1" />}
-                      {transaction.status === "pending" && <Clock className="h-3 w-3 mr-1" />}
-                      {transaction.status.charAt(0).toUpperCase() + transaction.status.slice(1)}
-                    </Badge>
-                    <div className="text-right min-w-[80px]">
-                      <p className="font-semibold text-foreground">RS {transaction.amount}</p>
-                      <p className="text-xs text-muted-foreground">{transaction.paymentMethod}</p>
+                  <div className="flex items-center justify-between md:justify-end gap-6 w-full md:w-auto">
+                    <div className="flex flex-col items-start md:items-end gap-2">
+                      <Badge variant="outline" className={cn(
+                        "rounded-xl px-4 py-1.5 font-black text-[10px] uppercase tracking-[0.2em] border-none",
+                        t.status === "completed" ? "bg-success/10 text-success" : "bg-warning/10 text-warning-foreground"
+                      )}>
+                        {t.status === 'pending_approval' ? 'Waiting for You' : t.status}
+                      </Badge>
+                      <div className="text-left md:text-right">
+                        <p className="text-xl font-black text-foreground tracking-tight">RS {t.amount.toLocaleString()}</p>
+                        <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest mt-1 opacity-60">{t.paymentMethod}</p>
+                      </div>
+                    </div>
+
+                    <div className="flex gap-2">
+                       {t.status === 'pending_approval' && (
+                         <Button 
+                           size="sm" 
+                           onClick={() => handleApprovePayment(t.id)}
+                           className="bg-success hover:bg-success/90 text-white rounded-xl font-black uppercase tracking-widest text-[10px] h-10 px-4 shadow-lg shadow-success/20"
+                         >
+                           Verify & Accept
+                         </Button>
+                       )}
+                       <Button 
+                         variant="ghost" 
+                         size="sm" 
+                         onClick={() => setSelectedReceipt(t.receipt_image_url || "https://images.unsplash.com/photo-1620714223084-8fcacc6dfd8d")}
+                         className="rounded-xl font-black uppercase tracking-widest text-[10px] h-10 px-4"
+                       >
+                         <Eye className="w-4 h-4 mr-2" />
+                         View Proof
+                       </Button>
                     </div>
                   </div>
                 </div>
               ))
+            ) : (
+              <div className="p-20 text-center text-muted-foreground space-y-3">
+                <CreditCard className="w-12 h-12 mx-auto opacity-10" />
+                <p className="font-bold text-lg">No revenue history yet</p>
+              </div>
             )}
           </div>
         </CardContent>
       </Card>
-    
-      <Dialog open={!!selectedReceipt} onOpenChange={(open) => !open && setSelectedReceipt(null)}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>Payment Receipt</DialogTitle>
-            <DialogDescription>
-              Proof of payment uploaded by the homeowner.
+
+      <Dialog open={!!selectedReceipt} onOpenChange={() => setSelectedReceipt(null)}>
+        <DialogContent className="max-w-2xl rounded-[2.5rem] p-0 overflow-hidden border-none shadow-2xl">
+          <DialogHeader className="p-8 bg-foreground text-background">
+            <DialogTitle className="text-2xl font-black tracking-tight">Payment Verification Proof</DialogTitle>
+            <DialogDescription className="text-background/60 font-medium">
+              Verify the details of this transfer before accepting the revenue.
             </DialogDescription>
           </DialogHeader>
-          <div className="py-4">
-            {selectedReceipt && (
-              <div className="rounded-xl border border-border overflow-hidden">
-                <img src={selectedReceipt} alt="Payment Receipt" className="w-full h-auto object-cover" />
-              </div>
-            )}
+          <div className="p-8 bg-background flex flex-col items-center">
+             <div className="w-full rounded-[2rem] overflow-hidden border-4 border-white shadow-xl bg-muted">
+                {selectedReceipt && (
+                  <img 
+                    src={selectedReceipt} 
+                    alt="Payment Receipt" 
+                    className="w-full h-auto object-contain max-h-[60vh]"
+                  />
+                )}
+             </div>
+             <Button 
+                className="w-full mt-8 h-16 rounded-2xl font-black uppercase tracking-widest text-sm"
+                onClick={() => setSelectedReceipt(null)}
+             >
+                Close Preview
+             </Button>
           </div>
         </DialogContent>
       </Dialog>
     </div>
+  )
+}
+
+function Loader2(props: any) {
+  return (
+    <svg
+      {...props}
+      xmlns="http://www.w3.org/2000/svg"
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M21 12a9 9 0 1 1-6.219-8.56" />
+    </svg>
   )
 }

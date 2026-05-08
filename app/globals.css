@@ -303,3 +303,176 @@ html {
   background-color: oklch(0.58 0.18 250 / 0.3);
   color: oklch(0.95 0.005 250);
 }
+
+/* Premium Blog Typography */
+.prose {
+  color: var(--muted-foreground);
+  line-height: 1.75;
+}
+
+.prose h1 {
+  font-size: 2.25rem;
+  line-height: 2.5rem;
+  font-weight: 700;
+  color: var(--foreground);
+  margin-bottom: 2rem;
+  margin-top: 3rem;
+  letter-spacing: -0.025em;
+}
+
+@media (min-width: 1024px) {
+  .prose h1 {
+    font-size: 3rem;
+    line-height: 1;
+  }
+}
+
+.prose h2 {
+  font-size: 1.5rem;
+  line-height: 2rem;
+  font-weight: 700;
+  color: var(--foreground);
+  margin-bottom: 1.5rem;
+  margin-top: 3rem;
+  letter-spacing: -0.025em;
+  border-bottom-width: 1px;
+  border-color: var(--border);
+  padding-bottom: 0.5rem;
+}
+
+@media (min-width: 1024px) {
+  .prose h2 {
+    font-size: 1.875rem;
+    line-height: 2.25rem;
+  }
+}
+
+.prose h3 {
+  font-size: 1.25rem;
+  line-height: 1.75rem;
+  font-weight: 600;
+  color: var(--foreground);
+  margin-bottom: 1rem;
+  margin-top: 2rem;
+  letter-spacing: -0.025em;
+}
+
+@media (min-width: 1024px) {
+  .prose h3 {
+    font-size: 1.5rem;
+    line-height: 2rem;
+  }
+}
+
+.prose p {
+  margin-bottom: 1.5rem;
+  font-size: 1.125rem;
+  line-height: 1.75rem;
+  font-weight: 300;
+}
+
+.prose strong {
+  font-weight: 600;
+  color: var(--foreground);
+}
+
+.prose ul {
+  list-style-type: disc;
+  list-style-position: inside;
+  margin-bottom: 2rem;
+  padding-left: 1rem;
+}
+
+.prose ul li {
+  margin-bottom: 0.75rem;
+}
+
+.prose ol {
+  list-style-type: decimal;
+  list-style-position: inside;
+  margin-bottom: 2rem;
+  padding-left: 1rem;
+}
+
+.prose ol li {
+  margin-bottom: 0.75rem;
+}
+
+.prose li {
+  color: var(--muted-foreground);
+  font-size: 1.125rem;
+  line-height: 1.75rem;
+  font-weight: 300;
+}
+
+.prose blockquote {
+  border-left-width: 4px;
+  border-color: var(--primary);
+  background-color: color-mix(in srgb, var(--primary), transparent 95%);
+  padding: 2rem;
+  margin-top: 2.5rem;
+  margin-bottom: 2.5rem;
+  border-top-right-radius: 1rem;
+  border-bottom-right-radius: 1rem;
+  font-style: italic;
+  font-size: 1.25rem;
+  line-height: 1.75rem;
+  color: var(--foreground);
+  font-weight: 300;
+}
+
+.prose img {
+  border-radius: 2rem;
+  margin-top: 2.5rem;
+  margin-bottom: 2.5rem;
+  box-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.25);
+  border-width: 1px;
+  border-color: color-mix(in srgb, var(--border), transparent 50%);
+}
+
+.prose figure {
+  margin-top: 3rem;
+  margin-bottom: 3rem;
+}
+
+.prose figcaption {
+  text-align: center;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  color: var(--muted-foreground);
+  margin-top: 1rem;
+  font-weight: 300;
+  font-style: italic;
+}
+
+.prose hr {
+  margin-top: 4rem;
+  margin-bottom: 4rem;
+  border-top-width: 1px;
+  border-color: var(--border);
+}
+
+.prose .pro-tip {
+  background-color: color-mix(in srgb, var(--accent), transparent 95%);
+  border-width: 1px;
+  border-color: color-mix(in srgb, var(--accent), transparent 80%);
+  padding: 2rem;
+  margin-top: 3rem;
+  margin-bottom: 3rem;
+  border-radius: 2rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.prose .pro-tip::before {
+  content: "PRO TIP";
+  position: absolute;
+  top: 0;
+  left: 0;
+  background-color: var(--accent);
+  color: var(--accent-foreground);
+  font-size: 0.625rem;
+  font-weight: 700;
+  padding: 0.25rem 0.75rem;
+  border-bottom-right-radius: 0.75rem;
+}

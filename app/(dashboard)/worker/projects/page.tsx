@@ -16,60 +16,121 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
+import confetti from 'canvas-confetti'
+import { PartyPopper, Trophy, Sparkles } from "lucide-react"
 
 export default function WorkerProjectsPage() {
   const [projects, setProjects] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
+  const [showCelebration, setShowCelebration] = useState(false)
+  const [celebratedJob, setCelebratedJob] = useState<string>("")
   
   // Proof of work modal state
   const [selectedJobId, setSelectedJobId] = useState<string | null>(null)
   const [proofImage, setProofImage] = useState<string | null>(null)
   const [isSubmittingProof, setIsSubmittingProof] = useState(false)
 
-  const fetchProjects = () => {
+  const fetchProjects = async () => {
     const savedUser = (localStorage.getItem('user') || sessionStorage.getItem('user'))
     if (savedUser) {
       const user = JSON.parse(savedUser)
       const userId = user.id || user.UserID
       
       if (userId) {
-        fetch(`/api/proxy?path=${encodeURIComponent(`/api/bids/worker/${userId}`)}`)
-          .then(res => res.json())
-          .then(data => {
-            if (Array.isArray(data)) {
-              const activeProjects = data.filter(b => b.status === "accepted").map(b => {
-                let progressValue = 10;
-                let nextMilestoneStr = 'Site Visit';
-                const pStatus = b.job_progress_status || 'Started';
-                if (pStatus === 'Site Visit') { progressValue = 25; nextMilestoneStr = '40% Completed'; }
-                if (pStatus === '40% Completed') { progressValue = 40; nextMilestoneStr = '50% Completed'; }
-                if (pStatus === '50% Completed') { progressValue = 50; nextMilestoneStr = 'Pending Verification'; }
-                if (pStatus === 'Pending Verification') { progressValue = 80; nextMilestoneStr = 'Waiting for Homeowner'; }
-                if (b.job_status === 'completed' || pStatus === 'Completed') { progressValue = 100; nextMilestoneStr = 'Finished'; }
+        try {
+          const [bidsRes, paymentsRes] = await Promise.all([
+            fetch(`/api/proxy?path=${encodeURIComponent(`/api/bids/worker/${userId}`)}`),
+            fetch(`/api/proxy?path=${encodeURIComponent(`/api/payments/worker/${userId}`)}`)
+          ]);
 
-                return {
-                  id: b.id,
-                  jobId: b.job_id,
-                  title: b.job_title,
-                  client: "Homeowner", 
-                  location: "Local",
-                  amount: b.amount,
-                  startDate: new Date(b.created_at).toLocaleDateString(),
-                  status: b.job_status === 'completed' ? 'Completed' : 'In Progress',
-                  progress_status: pStatus,
-                  progress: progressValue,
-                  nextMilestone: nextMilestoneStr,
-                }
-              })
-              setProjects(activeProjects)
-            }
-            setLoading(false)
-          })
-          .catch(err => {
-            console.error("Failed to fetch projects:", err)
-            setLoading(false)
-          })
+          const bidsData = await bidsRes.json();
+          const paymentsData = await paymentsRes.json();
+
+          if (Array.isArray(bidsData)) {
+            const activeProjects = bidsData.filter(b => b.status === "accepted").map(b => {
+              let progressValue = 10;
+              let nextMilestoneStr = 'Site Visit';
+              const pStatus = b.job_progress_status || 'Started';
+              
+              // Find payment status for this job (Robust check)
+              const payment = Array.isArray(paymentsData) ? paymentsData.find((p: any) => String(p.job_id) === String(b.job_id)) : null;
+              
+              // If there's a payment and it's not completed, it's pending for the worker
+              const isPaymentPending = payment && payment.status !== 'completed';
+              const paymentStatus = payment?.status || 'none';
+
+              if (pStatus === 'Site Visit') { progressValue = 25; nextMilestoneStr = '40% Completed'; }
+              if (pStatus === '40% Completed') { progressValue = 40; nextMilestoneStr = '50% Completed'; }
+              if (pStatus === '50% Completed') { progressValue = 50; nextMilestoneStr = 'Pending Verification'; }
+              if (pStatus === 'Pending Verification') { progressValue = 80; nextMilestoneStr = 'Waiting for Homeowner'; }
+              if (b.job_status === 'completed' || pStatus === 'Completed') { progressValue = 100; nextMilestoneStr = 'Finished'; }
+
+              return {
+                id: b.id,
+                jobId: b.job_id,
+                title: b.job_title,
+                client: "Homeowner", 
+                location: "Local",
+                amount: b.amount,
+                startDate: new Date(b.created_at).toLocaleDateString(),
+                status: (b.job_status === 'completed' || pStatus === 'Completed') ? 'Completed' : 'In Progress',
+                progress_status: pStatus,
+                progress: progressValue,
+                nextMilestone: nextMilestoneStr,
+                paymentStatus: paymentStatus,
+                isPaymentPending: isPaymentPending,
+                paymentId: payment?.id,
+                isPaid: !!b.job_is_paid || paymentStatus === 'completed'
+              }
+            })
+            setProjects(activeProjects)
+          }
+          setLoading(false)
+        } catch (err) {
+          console.error("Failed to fetch projects or payments:", err)
+          setLoading(false)
+        }
       }
+    }
+  }
+
+  const handleApprovePayment = async (paymentId: number | undefined) => {
+    if (!paymentId) {
+      alert("Payment record not found. Please try again in a moment.");
+      return;
+    }
+    
+    try {
+      const res = await fetch(`/api/proxy?path=${encodeURIComponent(`/api/payments/${paymentId}/approve`)}`, {
+        method: 'PUT'
+      });
+      if (res.ok) {
+        // Optimistic Update: Change the project status locally so it "locks in" instantly
+        setProjects(prev => prev.map(p => 
+          p.paymentId === paymentId ? { ...p, isPaymentPending: false, isPaid: true } : p
+        ));
+
+        // Trigger Confetti
+        confetti({
+          particleCount: 150,
+          spread: 70,
+          origin: { y: 0.6 },
+          colors: ['#22c55e', '#3b82f6', '#f59e0b']
+        });
+
+        // Show Celebration Modal
+        const job = projects.find(p => p.paymentId === paymentId);
+        setCelebratedJob(job?.title || "Project");
+        setShowCelebration(true);
+        
+        // Background refresh to sync with DB
+        fetchProjects();
+      } else {
+        alert("Verification failed. Please check your connection.");
+      }
+    } catch (error) {
+      console.error("Error approving payment:", error);
+      alert("A system error occurred. Please try again.");
     }
   }
 
@@ -233,10 +294,21 @@ export default function WorkerProjectsPage() {
                       </Button>
                     )
                   ) : (
-                    <Button variant="outline" className="flex-1" disabled>
-                      <CheckCircle className="w-4 h-4 mr-2" />
-                      Completed
-                    </Button>
+                    (project.isPaymentPending || !project.isPaid) ? (
+                      <Button 
+                        variant="default" 
+                        className="flex-1 bg-success hover:bg-success/90" 
+                        onClick={() => handleApprovePayment(project.paymentId)}
+                      >
+                        <CheckCircle className="w-4 h-4 mr-2" />
+                        Verify & Release Revenue
+                      </Button>
+                    ) : (
+                      <Button variant="outline" className="flex-1 bg-success/5 text-success border-success/20 font-black uppercase tracking-widest text-[10px]" disabled>
+                        <CheckCircle className="w-4 h-4 mr-2" />
+                        Payment Verified
+                      </Button>
+                    )
                   )}
                 </div>
               </CardContent>
@@ -299,6 +371,51 @@ export default function WorkerProjectsPage() {
               disabled={isSubmittingProof}
             >
               {isSubmittingProof ? "Submitting..." : "Submit to Homeowner"}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={showCelebration} onOpenChange={setShowCelebration}>
+        <DialogContent className="sm:max-w-md rounded-[3rem] p-0 overflow-hidden border-none shadow-2xl animate-in zoom-in-95 duration-300">
+          <DialogHeader className="sr-only">
+            <DialogTitle>Project Completion Celebration</DialogTitle>
+          </DialogHeader>
+          <div className="relative p-10 flex flex-col items-center text-center space-y-6">
+            <div className="absolute inset-0 bg-gradient-to-br from-success/20 via-background to-primary/10 -z-10" />
+            
+            <div className="w-24 h-24 rounded-full bg-success/20 flex items-center justify-center animate-bounce shadow-2xl shadow-success/20">
+              <Trophy className="w-12 h-12 text-success" />
+            </div>
+
+            <div className="space-y-2">
+              <Badge className="bg-success text-white px-4 py-1 rounded-full text-[10px] font-black uppercase tracking-[0.2em] mb-2">
+                Milestone Achieved
+              </Badge>
+              <h2 className="text-3xl font-black tracking-tighter text-foreground leading-none">
+                Victory!
+              </h2>
+              <p className="text-muted-foreground font-medium text-lg leading-relaxed pt-2">
+                You've successfully completed <br/>
+                <span className="text-primary font-bold">"{celebratedJob}"</span>
+              </p>
+            </div>
+
+            <div className="w-full p-6 bg-muted/30 rounded-3xl flex items-center gap-4">
+              <div className="w-12 h-12 rounded-xl bg-background flex items-center justify-center shadow-inner">
+                <Sparkles className="w-6 h-6 text-warning" />
+              </div>
+              <div className="text-left">
+                <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Earnings Unlocked</p>
+                <p className="text-lg font-black text-foreground">Verified & Secured</p>
+              </div>
+            </div>
+
+            <Button 
+              className="w-full h-16 rounded-2xl font-black uppercase tracking-widest text-sm shadow-xl shadow-primary/20"
+              onClick={() => setShowCelebration(false)}
+            >
+              Secure Your Next Win
             </Button>
           </div>
         </DialogContent>

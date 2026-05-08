@@ -16,10 +16,19 @@ import {
   Briefcase,
   Users,
   CheckCircle,
-  Star
+  Star,
+  ShieldCheck,
+  Zap,
+  Info,
+  TrendingUp,
+  History,
+  Camera
 } from "lucide-react"
 import { Textarea } from "@/components/ui/textarea"
 import { Progress } from "@/components/ui/progress"
+import { Skeleton } from "@/components/ui/skeleton"
+import { OptimizedImage } from "@/components/ui/optimized-image"
+import { cn } from "@/lib/utils"
 
 export default function HomeownerJobDetailsPage() {
   const params = useParams()
@@ -40,7 +49,6 @@ export default function HomeownerJobDetailsPage() {
     if (savedUser && jobId) {
       setLoading(true)
       
-      // Fetch specific job details and bids for that job
       Promise.all([
         fetch(`/api/proxy?path=${encodeURIComponent(`/api/jobs/${jobId}`)}`).then(res => res.json()),
         fetch(`/api/proxy?path=${encodeURIComponent(`/api/bids/job/${jobId}`)}`).then(res => res.json())
@@ -76,29 +84,7 @@ export default function HomeownerJobDetailsPage() {
           setLoading(false)
         })
     }
-  }, [jobId, router])
-
-  const handleCancel = async () => {
-    if (!confirm("Are you sure you want to cancel this job? This action cannot be undone.")) return;
-
-    try {
-      const response = await fetch(`/api/proxy?path=${encodeURIComponent(`/api/jobs/${jobId}/status`)}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status: 'cancelled' })
-      });
-
-      if (response.ok) {
-        setJob({ ...job, status: 'cancelled' });
-        // You could also redirect or show a success message
-      } else {
-        alert("Failed to cancel job. Please try again.");
-      }
-    } catch (error) {
-      console.error("Error cancelling job:", error);
-      alert("An error occurred. Please check your connection.");
-    }
-  }
+  }, [jobId])
 
   const handleVerifyCompletion = async () => {
     try {
@@ -114,7 +100,6 @@ export default function HomeownerJobDetailsPage() {
       });
       if (response.ok) {
         setJob({ ...job, status: 'completed', progress_status: 'Completed' });
-        alert("Job successfully verified as completed!");
       }
     } catch (error) {
       console.error("Failed to verify completion:", error);
@@ -139,235 +124,305 @@ export default function HomeownerJobDetailsPage() {
       if (response.ok) {
         setJob({ ...job, hasReviewed: true });
         alert("Review submitted successfully!");
-      } else {
-        const errorData = await response.json();
-        alert(errorData.error || "Failed to submit review");
       }
     } catch (error) {
       console.error("Error submitting review:", error);
-      alert("An error occurred. Please check your connection.");
     } finally {
       setIsSubmittingReview(false);
     }
   }
 
-  if (loading) {
-    return <div className="p-8 text-center text-muted-foreground">Loading job details...</div>
-  }
+  const isRealImage = (url: string) => {
+    if (!url) return false;
+    const lowerUrl = url.toLowerCase();
+    // Exclude common placeholder/test domains
+    if (lowerUrl.includes('unsplash.com')) return false;
+    if (lowerUrl.includes('placeholder')) return false;
+    if (lowerUrl.includes('example.com')) return false;
+    return url.startsWith('http') || url.startsWith('/');
+  };
 
-  if (!job) {
+  if (loading) {
     return (
-      <div className="p-8 text-center space-y-4">
-        <h2 className="text-xl font-semibold">Job not found</h2>
-        <p className="text-muted-foreground">The job you are looking for does not exist or you don't have access.</p>
-        <Button onClick={() => router.push('/homeowner/jobs')}>Back to My Jobs</Button>
+      <div className="max-w-5xl mx-auto space-y-8 p-6">
+        <Skeleton className="h-10 w-32 rounded-xl" />
+        <div className="grid lg:grid-cols-3 gap-8">
+          <div className="lg:col-span-2 space-y-8">
+            <Skeleton className="h-96 rounded-[3rem]" />
+          </div>
+          <Skeleton className="h-[500px] rounded-[3rem]" />
+        </div>
       </div>
     )
   }
 
-  return (
-    <div className="space-y-6 animate-fade-in max-w-4xl">
-      <div className="flex items-center gap-4">
-        <Button variant="ghost" size="icon" onClick={() => router.push('/homeowner/jobs')}>
-          <ArrowLeft className="w-5 h-5" />
-        </Button>
-        <div>
-          <h1 className="text-2xl font-bold text-foreground">Job Details</h1>
-          <p className="text-muted-foreground">Manage your posted project</p>
-        </div>
-      </div>
+  const progressMap: any = {
+    'Completed': 100,
+    'Pending Verification': 80,
+    '50% Completed': 50,
+    '40% Completed': 40,
+    'Site Visit': 25,
+    'Started': 10
+  }
 
-      <div className="grid md:grid-cols-3 gap-6">
-        <div className="md:col-span-2 space-y-6">
-          <Card className="border-border/50">
-            <CardHeader>
-              <div className="flex justify-between items-start gap-4">
-                <div>
-                  <CardTitle className="text-xl">{job.title}</CardTitle>
-                  <CardDescription className="flex items-center gap-2 mt-2">
-                    <Clock className="w-4 h-4" /> Posted on {job.postedAt}
-                  </CardDescription>
+  const currentProgress = progressMap[job.progress_status] || 10
+
+  return (
+    <div className="max-w-5xl mx-auto space-y-10 animate-fade-in pb-20">
+      <Button 
+        variant="ghost" 
+        onClick={() => router.push('/homeowner/jobs')} 
+        className="rounded-xl hover:bg-primary/5 font-bold group"
+      >
+        <ArrowLeft className="w-4 h-4 mr-2 group-hover:-translate-x-1 transition-transform" />
+        Back to Dashboard
+      </Button>
+
+      <div className="grid lg:grid-cols-3 gap-10">
+        <div className="lg:col-span-2 space-y-10">
+          {/* Main Job Card */}
+          <Card className="rounded-[3rem] border-border/50 shadow-sm overflow-hidden group">
+            <CardHeader className="p-10 lg:p-14 pb-6">
+              <div className="flex flex-col sm:flex-row justify-between items-start gap-6">
+                <div className="space-y-4">
+                  <div className="flex items-center gap-3">
+                    <Badge className={cn(
+                      "rounded-lg px-4 py-1 font-black text-[10px] uppercase tracking-widest border-none shadow-sm",
+                      job.status === 'open' ? "bg-primary/10 text-primary" : "bg-success/10 text-success"
+                    )}>
+                      {job.status.toUpperCase()}
+                    </Badge>
+                    <span className="text-[10px] font-black text-muted-foreground uppercase tracking-widest opacity-40">Job ID: {job.id}</span>
+                  </div>
+                  <CardTitle className="text-4xl lg:text-6xl font-black text-foreground tracking-tighter leading-[1.1]">{job.title}</CardTitle>
                 </div>
-                <Badge variant={job.status === 'open' ? 'default' : job.status === 'cancelled' ? 'destructive' : 'secondary'} className="capitalize">
-                  {job.status.replace('_', ' ')}
-                </Badge>
               </div>
             </CardHeader>
-            <CardContent className="space-y-6">
-              <div>
-                <h3 className="font-semibold mb-2">Description</h3>
-                <p className="text-muted-foreground whitespace-pre-wrap">{job.description}</p>
-              </div>
-
-              <div className="grid sm:grid-cols-2 gap-4 pt-4 border-t border-border">
-                <div className="space-y-3">
-                  <div className="flex items-center gap-2 text-sm">
-                    <Tag className="w-4 h-4 text-primary" />
-                    <span className="font-medium">Category:</span>
-                    <span className="text-muted-foreground">{job.category}</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-sm">
-                    <MapPin className="w-4 h-4 text-primary" />
-                    <span className="font-medium">Location:</span>
-                    <span className="text-muted-foreground">{job.location}</span>
-                  </div>
-                </div>
-                <div className="space-y-3">
-                  <div className="flex items-center gap-2 text-sm">
-                    <PkrIcon className="w-4 h-4 text-primary" />
-                    <span className="font-medium">Budget:</span>
-                    <span className="text-muted-foreground">RS {job.budget.min} - RS {job.budget.max}</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-sm">
-                    <Users className="w-4 h-4 text-primary" />
-                    <span className="font-medium">Bids Received:</span>
-                    <span className="text-muted-foreground">{bids.length}</span>
-                  </div>
-                </div>
-              </div>
-
-              {job.status !== 'open' && job.status !== 'cancelled' && (
-                <div className="pt-6 border-t border-border">
-                  <h3 className="font-semibold mb-4">Project Progress</h3>
-                  <div className="space-y-2">
-                    <div className="flex justify-between text-sm">
-                      <span className="font-medium text-foreground">Current Milestone: <span className="text-primary">{job.progress_status}</span></span>
-                      <span className="text-muted-foreground">
-                        {job.progress_status === 'Completed' ? '100%' : job.progress_status === 'Pending Verification' ? '80%' : job.progress_status === '50% Completed' ? '50%' : job.progress_status === '40% Completed' ? '40%' : job.progress_status === 'Site Visit' ? '25%' : '10%'}
-                      </span>
+            <CardContent className="p-10 lg:p-14 pt-0 space-y-12">
+               <div className="grid sm:grid-cols-2 gap-8 p-8 rounded-[2.5rem] bg-muted/20 border border-border/40">
+                  <div className="space-y-4">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-xl bg-white border border-border flex items-center justify-center shadow-sm">
+                        <Tag className="w-5 h-5 text-primary" />
+                      </div>
+                      <div className="flex flex-col">
+                        <span className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">Category</span>
+                        <span className="font-bold">{job.category}</span>
+                      </div>
                     </div>
-                    <Progress value={job.progress_status === 'Completed' ? 100 : job.progress_status === 'Pending Verification' ? 80 : job.progress_status === '50% Completed' ? 50 : job.progress_status === '40% Completed' ? 40 : job.progress_status === 'Site Visit' ? 25 : 10} className="h-2" />
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-xl bg-white border border-border flex items-center justify-center shadow-sm">
+                        <MapPin className="w-5 h-5 text-primary" />
+                      </div>
+                      <div className="flex flex-col">
+                        <span className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">Location</span>
+                        <span className="font-bold">{job.location}</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="space-y-4">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-xl bg-white border border-border flex items-center justify-center shadow-sm">
+                        <PkrIcon className="w-5 h-5 text-primary" />
+                      </div>
+                      <div className="flex flex-col">
+                        <span className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">Budget Allocation</span>
+                        <span className="font-bold">RS {job.budget.min.toLocaleString()} - {job.budget.max.toLocaleString()}</span>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-xl bg-white border border-border flex items-center justify-center shadow-sm">
+                        <Clock className="w-5 h-5 text-primary" />
+                      </div>
+                      <div className="flex flex-col">
+                        <span className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">Date Published</span>
+                        <span className="font-bold">{job.postedAt}</span>
+                      </div>
+                    </div>
+                  </div>
+               </div>
+
+               <div className="space-y-6">
+                 <h3 className="text-2xl font-black flex items-center gap-4">
+                    <div className="w-2 h-10 bg-primary rounded-full shadow-[0_0_15px_oklch(0.5_0.18_250)]" />
+                    Project Scope
+                 </h3>
+                 <p className="text-muted-foreground text-xl leading-relaxed font-medium whitespace-pre-wrap">{job.description}</p>
+               </div>
+
+               {job.status !== 'open' && job.status !== 'cancelled' && (
+                <div className="space-y-8 pt-10 border-t border-border/30">
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-2xl font-black">Project Velocity</h3>
+                    <Badge variant="outline" className="rounded-full bg-primary/5 text-primary border-primary/20 px-4 py-1.5 font-black text-[10px] uppercase tracking-widest">
+                       {job.progress_status}
+                    </Badge>
+                  </div>
+                  <div className="space-y-6">
+                    <Progress value={currentProgress} className="h-4 rounded-full bg-muted border p-1" />
+                    <div className="flex justify-between px-2">
+                       {['Site Visit', 'Ongoing', 'Review', 'Finish'].map((stage, i) => (
+                         <div key={stage} className="flex flex-col items-center gap-2">
+                           <div className={cn(
+                             "w-3 h-3 rounded-full border-2",
+                             currentProgress >= (i+1)*25 ? "bg-primary border-primary shadow-[0_0_8px_oklch(0.5_0.18_250)]" : "bg-muted border-muted-foreground/20"
+                           )} />
+                           <span className="text-[9px] font-black uppercase tracking-widest text-muted-foreground">{stage}</span>
+                         </div>
+                       ))}
+                    </div>
                   </div>
                 </div>
-              )}
+               )}
 
-              {job.progress_status === 'Pending Verification' && (
-                <div className="pt-6 border-t border-border">
-                  <h3 className="font-semibold mb-4 text-warning flex items-center gap-2">
-                    <CheckCircle className="w-5 h-5" /> Action Required: Verify Completion
-                  </h3>
-                  <div className="bg-muted/50 p-4 rounded-xl space-y-4">
-                    <p className="text-sm text-muted-foreground">The worker has marked this job as finished. Please review the proof of work and verify.</p>
-                    {job.completion_image_url && (
-                      <div className="rounded-xl overflow-hidden border border-border">
-                        <img src={job.completion_image_url} alt="Proof of work" className="w-full h-48 object-cover" />
+               {job.progress_status === 'Pending Verification' && (
+                <Card className="rounded-[2.5rem] border-primary/20 bg-primary/[0.02] overflow-hidden shadow-2xl shadow-primary/5">
+                  <div className="bg-primary p-8 text-white">
+                    <div className="flex items-center gap-4">
+                       <Zap className="w-8 h-8 fill-white animate-pulse" />
+                       <div>
+                         <h3 className="text-2xl font-black leading-tight">Verification Required</h3>
+                         <p className="text-white/70 text-[10px] font-black uppercase tracking-widest">Review proof of work</p>
+                       </div>
+                    </div>
+                  </div>
+                  <CardContent className="p-10 space-y-8">
+                    <p className="text-lg font-medium text-muted-foreground leading-relaxed">
+                      The worker has submitted the project for your final review. Please inspect the results carefully before accepting.
+                    </p>
+                    {isRealImage(job.completion_image_url) && (
+                      <div className="rounded-[2rem] overflow-hidden border-4 border-white shadow-2xl">
+                        <OptimizedImage src={job.completion_image_url} alt="Proof of work" aspectRatio="video" />
                       </div>
                     )}
-                    <Button onClick={handleVerifyCompletion} className="w-full">
-                      Verify & Accept Work
+                    {!isRealImage(job.completion_image_url) && (
+                      <div className="p-10 text-center border-2 border-dashed border-primary/20 rounded-[2rem] bg-primary/5">
+                        <Camera className="w-10 h-10 text-primary/40 mx-auto mb-4" />
+                        <p className="text-sm font-bold text-primary/60 uppercase tracking-widest">Awaiting Visual Proof</p>
+                      </div>
+                    )}
+                    <Button onClick={handleVerifyCompletion} className="w-full h-16 rounded-2xl font-black uppercase tracking-widest text-sm shadow-xl shadow-primary/30 transition-all hover:scale-[1.02]">
+                      <CheckCircle className="w-6 h-6 mr-3" />
+                      Verify & Release Payment
                     </Button>
-                  </div>
-                </div>
-              )}
+                  </CardContent>
+                </Card>
+               )}
             </CardContent>
           </Card>
 
+          {/* Rating Engine */}
           {job.status === 'completed' && !job.hasReviewed && job.workerId && (
-            <Card className="border-border/50 bg-primary/5">
-              <CardHeader>
-                <CardTitle className="text-xl flex items-center gap-2">
-                  <Star className="w-5 h-5 text-warning fill-warning" />
-                  Rate the Worker
-                </CardTitle>
-                <CardDescription>Your feedback helps maintain a trusted community.</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="flex gap-1">
-                  {[1, 2, 3, 4, 5].map((star) => (
-                    <button
-                      key={star}
-                      onClick={() => setReviewRating(star)}
-                      className="focus:outline-none"
-                    >
-                      <Star className={`w-8 h-8 ${reviewRating >= star ? "text-warning fill-warning" : "text-muted-foreground"}`} />
-                    </button>
-                  ))}
-                </div>
-                <Textarea
-                  placeholder="Share details of your own experience at this job..."
-                  value={reviewComment}
-                  onChange={(e) => setReviewComment(e.target.value)}
-                  className="min-h-[100px] resize-none"
-                />
-                <Button 
-                  onClick={handleSubmitReview} 
-                  disabled={isSubmittingReview || !reviewComment.trim()}
-                  className="w-full"
-                >
-                  {isSubmittingReview ? "Submitting..." : "Submit Review"}
-                </Button>
-              </CardContent>
+            <Card className="rounded-[3rem] border-none bg-gradient-to-br from-foreground to-foreground/90 text-background overflow-hidden relative shadow-2xl">
+               <div className="absolute top-0 right-0 p-12 opacity-10">
+                  <Star className="w-48 h-48 rotate-12" />
+               </div>
+               <CardHeader className="p-12 lg:p-16 pb-6">
+                  <CardTitle className="text-4xl lg:text-5xl font-black tracking-tighter leading-tight">
+                    Project Success! <br/><span className="text-primary italic">Rate Your Pro</span>
+                  </CardTitle>
+                  <CardDescription className="text-background/50 text-lg font-medium">Your feedback is the lifeblood of RenoConnect.</CardDescription>
+               </CardHeader>
+               <CardContent className="p-12 lg:p-16 pt-0 space-y-10">
+                  <div className="flex flex-col items-center gap-8 py-10 bg-white/5 rounded-[2.5rem] border border-white/10">
+                    <div className="flex gap-4">
+                      {[1, 2, 3, 4, 5].map((star) => (
+                        <button
+                          key={star}
+                          onClick={() => setReviewRating(star)}
+                          className="focus:outline-none transition-transform hover:scale-125"
+                        >
+                          <Star className={cn(
+                            "w-12 h-12 transition-all duration-300",
+                            reviewRating >= star ? "text-primary fill-primary drop-shadow-[0_0_15px_oklch(0.5_0.18_250)]" : "text-white/20"
+                          )} />
+                        </button>
+                      ))}
+                    </div>
+                    <div className="text-center space-y-1">
+                       <p className="text-2xl font-black text-white">{reviewRating} / 5 Stars</p>
+                       <p className="text-[10px] uppercase font-black tracking-[0.3em] text-white/40">Performance Rating</p>
+                    </div>
+                  </div>
+
+                  <div className="space-y-4">
+                    <label className="text-[10px] font-black uppercase tracking-widest text-white/50 pl-2">Detailed Feedback</label>
+                    <Textarea
+                      placeholder="Explain the quality, communication, and professionalism..."
+                      value={reviewComment}
+                      onChange={(e) => setReviewComment(e.target.value)}
+                      className="min-h-[150px] bg-white/5 border-white/10 rounded-3xl text-white text-lg font-medium p-6 focus:ring-primary focus:border-primary"
+                    />
+                  </div>
+
+                  <Button 
+                    onClick={handleSubmitReview} 
+                    disabled={isSubmittingReview || !reviewComment.trim()}
+                    className="w-full h-20 rounded-[2rem] bg-primary text-white hover:bg-primary/90 font-black uppercase tracking-widest text-sm shadow-2xl shadow-primary/40"
+                  >
+                    {isSubmittingReview ? "Broadcasting Feedback..." : "Submit Verified Review"}
+                  </Button>
+               </CardContent>
             </Card>
           )}
 
           {job.status === 'completed' && job.hasReviewed && (
-            <Card className="border-border/50 bg-success/5">
-              <CardContent className="p-6 flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-success/20 flex items-center justify-center">
-                  <CheckCircle className="w-5 h-5 text-success" />
+            <Card className="rounded-[3rem] border-success/20 bg-success/[0.02] p-12 text-center space-y-6">
+                <div className="w-20 h-20 rounded-full bg-success/10 flex items-center justify-center mx-auto shadow-inner">
+                  <ShieldCheck className="w-10 h-10 text-success" />
                 </div>
-                <div>
-                  <h3 className="font-semibold text-foreground">Review Submitted</h3>
-                  <p className="text-sm text-muted-foreground">Thank you for rating the worker!</p>
+                <div className="space-y-2">
+                  <h3 className="text-3xl font-black">Reputation Secured</h3>
+                  <p className="text-lg font-medium text-muted-foreground">Your verified review has been added to the worker's official profile.</p>
                 </div>
-              </CardContent>
             </Card>
           )}
         </div>
 
-        <div className="space-y-6">
-          <Card className="border-border/50">
-            <CardHeader>
-              <CardTitle>Actions</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              <Button className="w-full" asChild>
-                <Link href="/homeowner/bids">View All Bids</Link>
-              </Button>
-              {job.status === 'open' && (
-                <Button variant="outline" className="w-full" asChild>
-                  <Link href={`/homeowner/jobs/${jobId}/edit`}>Edit Job</Link>
-                </Button>
-              )}
-              {job.status === 'completed' && !job.isPaid && (
-                <Button
-                  className="w-full bg-success hover:bg-success/90 text-white shadow-lg shadow-success/20"
-                  asChild
-                >
-                  <Link href={`/homeowner/payments/pay/${jobId}`}>
-                    Process Payment
+        <div className="space-y-8">
+           <Card className="rounded-[3rem] border-border/50 p-10 space-y-8 sticky top-24">
+              <h3 className="text-xl font-black uppercase tracking-widest">Control Panel</h3>
+              <div className="space-y-4">
+                <Button className="w-full h-14 rounded-2xl font-black uppercase tracking-widest text-[10px] shadow-xl shadow-primary/20" asChild>
+                  <Link href="/homeowner/bids">
+                    <Users className="w-4 h-4 mr-2" />
+                    Review All Bids ({bids.length})
                   </Link>
                 </Button>
-              )}
-              {job.status === 'open' && (
-                <Button
-                  variant="outline"
-                  className="w-full text-destructive hover:text-destructive"
-                  onClick={handleCancel}
-                >
-                  Cancel Job
-                </Button>
-              )}
-            </CardContent>
-          </Card>
+                {job.status === 'open' && (
+                  <Button variant="outline" className="w-full h-14 rounded-2xl font-black uppercase tracking-widest text-[10px] border-2" asChild>
+                    <Link href={`/homeowner/jobs/${jobId}/edit`}>Edit Specifications</Link>
+                  </Button>
+                )}
+                {job.status === 'completed' && !job.isPaid && (
+                  <Button className="w-full h-16 rounded-2xl bg-success hover:bg-success/90 text-white font-black uppercase tracking-widest text-[10px] shadow-xl shadow-success/30" asChild>
+                    <Link href={`/homeowner/payments/pay/${jobId}`}>
+                      Process Final Payment
+                    </Link>
+                  </Button>
+                )}
+              </div>
 
-          <Card className="border-border/50">
-            <CardHeader>
-              <CardTitle>Job Stats</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4 text-sm">
-              <div className="flex justify-between items-center pb-2 border-b border-border/50">
-                <span className="text-muted-foreground">Total Bids</span>
-                <span className="font-semibold">{bids.length}</span>
+              <div className="pt-8 border-t border-border/30 space-y-6">
+                <div className="flex justify-between items-center">
+                  <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Avg. Bid</span>
+                  <span className="font-black text-xl">
+                    {bids.length > 0 ? (
+                      `RS ${Math.round(bids.reduce((acc, b) => acc + (Number(b.amount) || 0), 0) / bids.length).toLocaleString()}`
+                    ) : (
+                      "No Bids"
+                    )}
+                  </span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Pro Visibility</span>
+                  <div className="flex items-center gap-2">
+                    <TrendingUp className="w-4 h-4 text-primary" />
+                    <span className="font-black text-primary">High</span>
+                  </div>
+                </div>
               </div>
-              <div className="flex justify-between items-center pb-2 border-b border-border/50">
-                <span className="text-muted-foreground">Average Bid</span>
-                <span className="font-semibold">
-                  RS {bids.length > 0 ? Math.round(bids.reduce((acc, b) => acc + (b.amount || 0), 0) / bids.length) : 0}
-                </span>
-              </div>
-            </CardContent>
-          </Card>
+           </Card>
         </div>
       </div>
     </div>

@@ -112,13 +112,25 @@ export function JobCard({ job, variant = "homeowner", className }: JobCardProps)
                   <ArrowRight className="ml-2 w-4 h-4" />
                 </Link>
               </Button>
-            ) : job.isPaid ? (
-              <Button size="sm" variant="outline" className="bg-success/5 text-success border-success/20" disabled>
-                Paid
+            ) : job.progress_status === "Pending Verification" ? (
+              <Button size="sm" className="bg-warning hover:bg-warning/90 text-warning-foreground shadow-lg shadow-warning/20 animate-pulse" asChild>
+                <Link href={`/homeowner/jobs/${job.id}`}>
+                  Review & Verify
+                  <ArrowRight className="ml-2 w-4 h-4" />
+                </Link>
+              </Button>
+            ) : (job.isPaid && job.status === "completed") ? (
+              <Button size="sm" variant="outline" className="bg-success/10 text-success border-success/20 font-black uppercase tracking-widest text-[10px] h-10" disabled>
+                Paid & Completed
                 <CheckCircle className="ml-2 w-4 h-4" />
               </Button>
+            ) : job.isPaid ? (
+              <Button size="sm" variant="outline" className="bg-warning/10 text-warning-foreground border-warning/20 animate-pulse font-black uppercase tracking-widest text-[10px] h-10" disabled>
+                Verifying Payment...
+                <Clock className="ml-2 w-3 h-3" />
+              </Button>
             ) : (
-              <Button size="sm" asChild>
+              <Button size="sm" className="font-black uppercase tracking-widest text-[10px] h-10 shadow-lg shadow-primary/20" asChild>
                 <Link href={`/homeowner/payments/pay/${job.id}`}>
                   Make Payment
                   <ArrowRight className="ml-2 w-4 h-4" />

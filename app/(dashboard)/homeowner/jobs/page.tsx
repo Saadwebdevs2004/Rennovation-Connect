@@ -35,6 +35,7 @@ export default function HomeownerJobsPage() {
                 budget: { min: job.budgetMin, max: job.budgetMax },
                 bidsCount: job.bidsCount || 0,
                 status: job.status || "open",
+                progress_status: job.progress_status || "",
                 isPaid: !!job.isPaid,
                 postedAt: new Date(job.created_at).toLocaleDateString(), 
             }))
