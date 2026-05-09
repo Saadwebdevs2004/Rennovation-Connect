@@ -20,7 +20,7 @@ export function HeroSection() {
       <div className="absolute top-1/4 left-[-5%] w-96 h-96 bg-primary/10 rounded-full blur-[120px] animate-pulse-glow" />
       <div className="absolute bottom-1/4 right-[-5%] w-[500px] h-[500px] bg-accent/10 rounded-full blur-[120px] animate-pulse-glow animation-delay-1000" />
 
-      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 lg:py-32">
+      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 lg:py-32">
         <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
           {/* Left Content */}
           <div className="text-center lg:text-left z-10">
@@ -29,7 +29,7 @@ export function HeroSection() {
               The #1 Renovation Platform
             </Badge>
 
-            <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold text-foreground leading-[1.1] tracking-tight animate-fade-in-up">
+            <h1 className="text-4xl sm:text-6xl lg:text-7xl font-bold text-foreground leading-[1.1] tracking-tight animate-fade-in-up">
               Revitalize Your{" "}
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-accent animate-gradient">
                 Living Space

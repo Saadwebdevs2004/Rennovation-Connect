@@ -73,7 +73,7 @@ const features = [
 
 export function Features() {
   return (
-    <section id="features" className="py-24 lg:py-32 bg-muted/20 relative overflow-hidden">
+    <section id="features" className="py-16 lg:py-32 bg-muted/20 relative overflow-hidden">
       {/* Decorative Blobs */}
       <div className="absolute top-0 right-0 w-96 h-96 bg-primary/5 rounded-full blur-[100px] -mr-48 -mt-48" />
       <div className="absolute bottom-0 left-0 w-96 h-96 bg-accent/5 rounded-full blur-[100px] -ml-48 -mb-48" />
@@ -83,7 +83,7 @@ export function Features() {
           <Badge variant="outline" className="mb-4 border-primary/20 bg-primary/5 text-primary">
             Platform Benefits
           </Badge>
-          <h2 className="text-4xl lg:text-5xl font-bold text-foreground mb-6 tracking-tight">
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-foreground mb-6 tracking-tight">
             Everything You Need to <span className="text-primary">Succeed</span>
           </h2>
           <p className="text-xl text-muted-foreground leading-relaxed">

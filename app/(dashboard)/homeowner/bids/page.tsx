@@ -140,32 +140,44 @@ export default function HomeownerBidsPage() {
       </div>
 
       {/* Tabs */}
-      <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList>
-          <TabsTrigger value="pending">Pending ({bids.filter(b => b.status === "pending").length})</TabsTrigger>
-          <TabsTrigger value="accepted">Accepted ({bids.filter(b => b.status === "accepted").length})</TabsTrigger>
-          <TabsTrigger value="rejected">Rejected ({bids.filter(b => b.status === "rejected").length})</TabsTrigger>
-          <TabsTrigger value="all">All ({bids.length})</TabsTrigger>
-        </TabsList>
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+        <div className="overflow-x-auto pb-2 -mx-4 px-4 sm:mx-0 sm:px-0 scrollbar-hide">
+          <TabsList className="w-fit sm:w-full flex justify-start sm:justify-center min-w-max bg-muted/50 p-1 rounded-xl">
+            <TabsTrigger value="pending" className="rounded-lg px-4 py-2">Pending ({bids.filter(b => b.status === "pending").length})</TabsTrigger>
+            <TabsTrigger value="accepted" className="rounded-lg px-4 py-2">Accepted ({bids.filter(b => b.status === "accepted").length})</TabsTrigger>
+            <TabsTrigger value="rejected" className="rounded-lg px-4 py-2">Rejected ({bids.filter(b => b.status === "rejected").length})</TabsTrigger>
+            <TabsTrigger value="all" className="rounded-lg px-4 py-2">All ({bids.length})</TabsTrigger>
+          </TabsList>
+        </div>
 
         <TabsContent value={activeTab} className="mt-6 space-y-8">
-          {Object.entries(groupedBids).map(([jobTitle, jobBids]) => (
-            <div key={jobTitle}>
-              <h2 className="text-lg font-semibold text-foreground mb-4 flex items-center gap-2">
-                {jobTitle}
-                <Badge variant="secondary">{jobBids.length} bids</Badge>
-              </h2>
-              <div className="grid gap-4">
-                {jobBids.map((bid) => (
-                  <BidCard key={bid.id} bid={bid} onStatusChange={handleBidStatus} />
-                ))}
-              </div>
+          {isLoading ? (
+            <div className="space-y-6">
+              {[1, 2, 3].map(i => (
+                <div key={i} className="h-48 w-full bg-muted animate-pulse rounded-3xl" />
+              ))}
             </div>
-          ))}
-
-          {Object.keys(groupedBids).length === 0 && (
-            <div className="text-center py-12 bg-muted/30 rounded-xl">
-              <p className="text-muted-foreground">No bids found</p>
+          ) : Object.keys(groupedBids).length > 0 ? (
+            Object.entries(groupedBids).map(([jobTitle, jobBids]) => (
+              <div key={jobTitle}>
+                <h2 className="text-lg font-semibold text-foreground mb-4 flex items-center gap-2">
+                  {jobTitle}
+                  <Badge variant="secondary">{jobBids.length} bids</Badge>
+                </h2>
+                <div className="grid gap-4">
+                  {jobBids.map((bid) => (
+                    <BidCard key={bid.id} bid={bid} onStatusChange={handleBidStatus} />
+                  ))}
+                </div>
+              </div>
+            ))
+          ) : (
+            <div className="text-center py-20 bg-muted/20 rounded-[2.5rem] border-2 border-dashed border-border/50">
+              <div className="w-16 h-16 bg-muted/50 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Search className="w-8 h-8 text-muted-foreground/30" />
+              </div>
+              <h3 className="text-xl font-bold text-foreground">No bids found</h3>
+              <p className="text-muted-foreground mt-2">Adjust your filters or wait for new proposals.</p>
             </div>
           )}
         </TabsContent>
@@ -176,8 +188,8 @@ export default function HomeownerBidsPage() {
 
 function BidCard({ bid, onStatusChange }: { bid: Bid, onStatusChange: (id: string, status: 'accepted' | 'rejected') => void }) {
   return (
-    <div className="bg-card rounded-xl border border-border p-5 hover:border-primary/30 hover:shadow-lg transition-all">
-      <div className="flex flex-col lg:flex-row lg:items-start gap-4">
+    <div className="bg-card rounded-[2rem] border border-border/50 p-6 sm:p-8 hover:border-primary/30 hover:shadow-xl transition-all group">
+      <div className="flex flex-col lg:flex-row lg:items-start gap-6">
         {/* Professional Info */}
         <div className="flex items-start gap-4 flex-1">
           <div className="w-14 h-14 rounded-xl bg-primary/10 flex items-center justify-center text-primary font-semibold text-lg shrink-0">

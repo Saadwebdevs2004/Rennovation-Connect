@@ -23,7 +23,7 @@ export function DashboardLayout({ children, role, user }: DashboardLayoutProps) 
       {/* Mesh Gradient Overlay */}
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,oklch(0.5_0.18_250/0.05),transparent_50%)] pointer-events-none" />
       {/* Sidebar */}
-      <div className="hidden lg:block">
+      <div className="hidden lg:block fixed left-0 top-0 z-40">
         <DashboardSidebar role={role} />
       </div>
 

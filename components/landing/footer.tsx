@@ -87,7 +87,7 @@ export function Footer() {
   return (
     <footer className="bg-sidebar text-sidebar-foreground border-t border-sidebar-border">
       {/* Main Footer */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 lg:py-28">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-28">
         <div className="grid lg:grid-cols-6 gap-16 lg:gap-12">
           {/* Brand Column */}
           <div className="lg:col-span-2 space-y-8">
@@ -121,7 +121,7 @@ export function Footer() {
           </div>
 
           {/* Links Columns */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 lg:col-span-4 gap-12 lg:gap-8">
+          <div className="grid grid-cols-2 sm:grid-cols-4 lg:col-span-4 gap-8 lg:gap-8">
             <div>
               <h3 className="font-bold mb-6 text-sm uppercase tracking-widest text-sidebar-foreground/40">Platform</h3>
               <ul className="space-y-4">

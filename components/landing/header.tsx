@@ -80,7 +80,7 @@ export function Header() {
 
   return (
     <header
-      className={`fixed top-4 left-1/2 -translate-x-1/2 z-50 transition-all duration-500 w-[95%] max-w-7xl rounded-full ${
+      className={`fixed top-2 lg:top-4 left-1/2 -translate-x-1/2 z-50 transition-all duration-500 w-[95%] max-w-7xl rounded-full ${
         isScrolled
           ? "bg-background/60 backdrop-blur-xl border border-border/50 shadow-[0_8px_32px_0_oklch(0_0_0/0.05)] py-2"
           : "bg-transparent py-4"

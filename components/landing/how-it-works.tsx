@@ -52,13 +52,13 @@ const workerSteps = [
 
 export function HowItWorks() {
   return (
-    <section id="how-it-works" className="py-24 lg:py-32 bg-background relative overflow-hidden">
+    <section id="how-it-works" className="py-16 lg:py-32 bg-background relative overflow-hidden">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center max-w-3xl mx-auto mb-20 animate-fade-in-up">
           <Badge variant="outline" className="mb-4 border-primary/20 bg-primary/5 text-primary">
             Our Process
           </Badge>
-          <h2 className="text-4xl lg:text-5xl font-bold text-foreground mb-6 tracking-tight">
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-foreground mb-6 tracking-tight">
             Simple Process, <span className="text-primary">Exceptional</span> Results
           </h2>
           <p className="text-xl text-muted-foreground leading-relaxed">

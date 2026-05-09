@@ -29,6 +29,7 @@ import {
   FileText,
   CreditCard,
   Sparkles,
+  Check,
 } from "lucide-react"
 import { UserRole } from "./sidebar"
 
@@ -42,12 +43,33 @@ interface HeaderProps {
   onMenuClick?: () => void
 }
 
+const GREETINGS = {
+  homeowner: [
+    "Ready to transform another space?",
+    "Another renovation idea today?",
+    "Back to planning the perfect home?",
+    "The dream home project continues.",
+    "Another step toward the perfect renovation.",
+    "Planning changes for the space again?",
+    "Looks like renovation mode is active."
+  ],
+  worker: [
+    "Another project lined up?",
+    "Ready to review incoming jobs?",
+    "Looks like the work queue is growing.",
+    "Another busy contractor session?",
+    "Project discussions are active today.",
+    "Blueprints are waiting for your touch.",
+    "Another day of building excellence."
+  ]
+}
+
 const fetcher = (url: string) => fetch(url).then(res => res.json())
 
 export function DashboardHeader({ role, user: propUser, onMenuClick }: HeaderProps) {
   const router = useRouter()
   const [mounted, setMounted] = useState(false)
-  const [greeting, setGreeting] = useState({ main: "Hello", sub: "Welcome back" })
+  const [greeting, setGreeting] = useState("")
 
   // Get user from local storage for initial key
   const getUserId = () => {
@@ -76,18 +98,42 @@ export function DashboardHeader({ role, user: propUser, onMenuClick }: HeaderPro
   useEffect(() => {
     setMounted(true)
     
-    // Set Dynamic Greetings once on mount
-    const hour = new Date().getHours();
-    if (hour < 12) setGreeting({ main: "Good Morning", sub: "Ready for a productive start?" });
-    else if (hour < 17) setGreeting({ main: "Good Afternoon", sub: "Keeping the momentum high" });
-    else setGreeting({ main: "Good Evening", sub: "Wrapping up your day" });
-  }, [])
+    // Pick a random role-based greeting
+    const roleGreetings = GREETINGS[role] || GREETINGS.homeowner
+    const randomGreeting = roleGreetings[Math.floor(Math.random() * roleGreetings.length)]
+    setGreeting(randomGreeting)
+  }, [role])
 
   const handleLogout = () => {
     localStorage.removeItem('user')
     sessionStorage.removeItem('user')
     removeUserCookie()
     window.location.href = '/login'
+  }
+  
+  const handleMarkAsRead = async (id: number) => {
+    try {
+      await fetch(`/api/proxy?path=${encodeURIComponent(`/api/notifications/${id}/read`)}`, {
+        method: 'PUT'
+      })
+      mutateNotifications()
+    } catch (error) {
+      console.error("Failed to mark notification as read:", error)
+    }
+  }
+
+  const handleMarkAllAsRead = async (e: React.MouseEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    if (!userId) return
+    try {
+      await fetch(`/api/proxy?path=${encodeURIComponent(`/api/notifications/user/${userId}/read-all`)}`, {
+        method: 'PUT'
+      })
+      mutateNotifications()
+    } catch (error) {
+      console.error("Failed to mark all notifications as read:", error)
+    }
   }
 
   const unreadCount = Array.isArray(notifications) ? notifications.filter((n: any) => !n.is_read).length : 0
@@ -126,13 +172,10 @@ export function DashboardHeader({ role, user: propUser, onMenuClick }: HeaderPro
           </Button>
 
           <div className="hidden sm:flex flex-col">
-            <h2 className="text-xl font-bold tracking-tight text-foreground flex items-center gap-2">
-              {greeting.main}, <span className="text-primary font-black">{displayName.split(' ')[0]}</span>
+            <h2 className="text-lg font-bold tracking-tight text-foreground flex items-center gap-2">
+              <span className="text-primary font-black opacity-90">{greeting}</span>
               <Sparkles className="w-4 h-4 text-primary animate-pulse" />
             </h2>
-            <p className="text-[10px] text-muted-foreground font-black uppercase tracking-[0.2em] opacity-60">
-              {greeting.sub}
-            </p>
           </div>
         </div>
 
@@ -152,14 +195,31 @@ export function DashboardHeader({ role, user: propUser, onMenuClick }: HeaderPro
             <DropdownMenuContent align="end" className="w-80 p-0 rounded-2xl overflow-hidden shadow-2xl border-border/50">
               <div className="p-4 bg-primary/5 border-b border-border/50 flex items-center justify-between">
                 <span className="font-bold">Notifications</span>
-                {unreadCount > 0 && (
-                  <Badge variant="secondary" className="bg-primary/10 text-primary border-none">{unreadCount} New</Badge>
-                )}
+                <div className="flex items-center gap-2">
+                  {unreadCount > 0 && (
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      className="h-7 px-2 text-[10px] font-bold uppercase tracking-widest hover:bg-primary/10 hover:text-primary transition-colors"
+                      onClick={handleMarkAllAsRead}
+                    >
+                      <Check className="w-3 h-3 mr-1" />
+                      Mark all as read
+                    </Button>
+                  )}
+                  {unreadCount > 0 && (
+                    <Badge variant="secondary" className="bg-primary/10 text-primary border-none">{unreadCount} New</Badge>
+                  )}
+                </div>
               </div>
               <div className="max-h-80 overflow-y-auto">
                 {Array.isArray(notifications) && notifications.length > 0 ? (
                   notifications.map((n: any) => (
-                    <DropdownMenuItem key={n.id} className="p-4 border-b border-border/10 last:border-0 cursor-pointer hover:bg-muted/50 transition-colors">
+                    <DropdownMenuItem 
+                      key={n.id} 
+                      className="p-4 border-b border-border/10 last:border-0 cursor-pointer hover:bg-muted/50 transition-colors focus:bg-muted/50"
+                      onClick={() => !n.is_read && handleMarkAsRead(n.id)}
+                    >
                       <div className="flex gap-4">
                         <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${n.is_read ? 'bg-muted' : 'bg-primary/10'}`}>
                           <Bell className={`w-4 h-4 ${n.is_read ? 'text-muted-foreground' : 'text-primary'}`} />

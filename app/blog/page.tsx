@@ -168,14 +168,14 @@ export default function BlogPage() {
     <div className="min-h-screen bg-background">
       <Header />
       
-      <main className="pt-32 pb-20 px-4">
+      <main className="pt-24 lg:pt-32 pb-20 px-4">
         <div className="max-w-7xl mx-auto">
           {/* Hero Section */}
           <div className="text-center mb-16 space-y-4">
             <Badge variant="outline" className="px-4 py-1 border-primary/30 text-primary bg-primary/5 rounded-full">
               Insights & Expertise
             </Badge>
-            <h1 className="text-5xl lg:text-7xl font-bold tracking-tight text-foreground">
+            <h1 className="text-4xl lg:text-7xl font-bold tracking-tight text-foreground">
               Our <span className="text-primary">Journal</span>
             </h1>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto font-light leading-relaxed">
@@ -207,7 +207,7 @@ export default function BlogPage() {
                         {featuredPost.readTime}
                       </span>
                     </div>
-                    <h2 className="text-3xl lg:text-5xl font-bold leading-tight group-hover:text-primary transition-colors">
+                    <h2 className="text-2xl lg:text-5xl font-bold leading-tight group-hover:text-primary transition-colors">
                       {featuredPost.title}
                     </h2>
                     <p className="text-lg text-muted-foreground leading-relaxed font-light">
@@ -237,7 +237,7 @@ export default function BlogPage() {
           )}
 
           {/* Regular Grid */}
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
             {regularPosts.map((post, index) => (
               <div 
                 key={post.title} 

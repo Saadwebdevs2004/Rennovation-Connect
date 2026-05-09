@@ -13,7 +13,7 @@ export function Gallery() {
             <Badge variant="outline" className="mb-6 border-primary/20 bg-primary/5 text-primary">
               Transformation Showcase
             </Badge>
-            <h2 className="text-4xl lg:text-6xl font-bold text-foreground mb-8 tracking-tight leading-[1.1]">
+            <h2 className="text-3xl sm:text-4xl lg:text-6xl font-bold text-foreground mb-8 tracking-tight leading-[1.1]">
               Visualize Your <br/>
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-accent">Dream Home</span>
             </h2>

@@ -294,7 +294,12 @@ export default function WorkerProjectsPage() {
                       </Button>
                     )
                   ) : (
-                    (project.isPaymentPending || !project.isPaid) ? (
+                    project.paymentStatus === 'none' ? (
+                      <Button variant="outline" className="flex-1 opacity-70" disabled>
+                        <Clock className="w-4 h-4 mr-2" />
+                        Awaiting Payment
+                      </Button>
+                    ) : (project.isPaymentPending || !project.isPaid) ? (
                       <Button 
                         variant="default" 
                         className="flex-1 bg-success hover:bg-success/90" 

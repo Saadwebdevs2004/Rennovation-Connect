@@ -24,7 +24,7 @@ export function HomeownerDashboardClient({ userName, statsData, jobsData }: Home
     { title: "Active Jobs", value: statsData?.activeJobs ?? 0, icon: ClipboardList, trend: { value: 12, isPositive: true } },
     { title: "Total Bids", value: statsData?.totalBids ?? 0, icon: Users, trend: { value: 8, isPositive: true } },
     { title: "Completed", value: statsData?.completedJobs ?? 0, icon: CheckCircle, description: "Success rate: 100%" },
-    { title: "Total Spent", value: `RS ${(statsData?.totalSpent ?? 0).toLocaleString()}`, icon: PkrIcon, trend: { value: 15, isPositive: true } },
+    { title: "Total Spent", value: `RS ${Number(statsData?.totalSpent || 0).toLocaleString()}`, icon: PkrIcon, trend: { value: 15, isPositive: true } },
   ]
 
   const jobs = Array.isArray(jobsData) ? jobsData.map((row: any) => ({
@@ -42,7 +42,7 @@ export function HomeownerDashboardClient({ userName, statsData, jobsData }: Home
   return (
     <div className="space-y-10 animate-fade-in pb-12">
       {/* Premium Hero */}
-      <div className="relative rounded-[3rem] p-10 lg:p-14 overflow-hidden group shadow-2xl shadow-primary/10">
+      <div className="relative rounded-[2rem] lg:rounded-[3rem] p-6 lg:p-14 overflow-hidden group shadow-2xl shadow-primary/10">
         <div className="absolute inset-0 bg-gradient-to-br from-primary via-accent to-primary/80 animate-gradient" />
         <div className="absolute inset-0 bg-grid-white opacity-10" />
         
@@ -51,8 +51,8 @@ export function HomeownerDashboardClient({ userName, statsData, jobsData }: Home
             <Badge className="bg-white/20 text-white border-white/30 backdrop-blur-xl px-6 py-2 text-[10px] font-black uppercase tracking-[0.3em] rounded-full">
               Project Control Center
             </Badge>
-            <h1 className="text-5xl lg:text-8xl font-black text-white tracking-tighter leading-[0.9]">
-              Welcome, <br/><span className="text-white/60 italic">{userName.split(' ')[0]}</span>
+            <h1 className="text-3xl sm:text-6xl lg:text-8xl font-black text-white tracking-tighter leading-tight">
+              Welcome, <br/><span>{userName.split(' ')[0]}</span>
             </h1>
             <p className="text-white/80 text-xl max-w-xl font-medium leading-relaxed">
               You have <span className="text-white font-bold">{statsData?.activeJobs || 0} projects</span> active and <span className="text-white font-bold">{statsData?.totalBids || 0} bids</span> awaiting review.
@@ -89,12 +89,14 @@ export function HomeownerDashboardClient({ userName, statsData, jobsData }: Home
           <Link
             key={action.label}
             href={action.href}
-            className="glass-card p-6 rounded-3xl flex items-center gap-5 hover:scale-[1.05] transition-all group border-border/40"
+            className="glass-card p-4 sm:p-6 rounded-3xl flex flex-col sm:flex-row items-center sm:items-center text-center sm:text-left gap-3 sm:gap-5 hover:scale-[1.05] transition-all group border-border/40"
           >
             <div className={cn("w-12 h-12 rounded-2xl flex items-center justify-center text-white shadow-xl shrink-0", action.color)}>
               <action.icon className="w-6 h-6" />
             </div>
-            <span className="font-black text-sm uppercase tracking-widest text-foreground group-hover:text-primary transition-colors">{action.label}</span>
+            <span className="font-black text-[10px] sm:text-sm uppercase tracking-widest text-foreground group-hover:text-primary transition-colors leading-tight">
+              {action.label}
+            </span>
           </Link>
         ))}
       </div>
@@ -206,13 +208,13 @@ export function HomeownerDashboardClient({ userName, statsData, jobsData }: Home
             <h3 className="font-black text-sm uppercase tracking-[0.3em] text-primary">Financial Summary</h3>
             <div className="space-y-6">
               {[
-                { label: "Total Investment", value: `RS ${(statsData?.totalSpent ?? 0).toLocaleString()}` },
+                { label: "Total Investment", value: `RS ${Number(statsData?.totalSpent || 0).toLocaleString()}` },
                 { label: "Active Jobs", value: statsData?.activeJobs ?? 0 },
                 { label: "Completed", value: statsData?.completedJobs ?? 0 },
               ].map(item => (
-                <div key={item.label} className="flex items-center justify-between pb-6 border-b border-border/10 last:border-0 last:pb-0">
-                  <span className="text-[10px] text-muted-foreground font-black uppercase tracking-widest">{item.label}</span>
-                  <span className="font-black text-foreground text-lg">{item.value}</span>
+                <div key={item.label} className="flex flex-col sm:flex-row sm:items-center justify-between py-4 border-b border-border/10 last:border-0">
+                  <span className="text-[10px] text-muted-foreground font-black uppercase tracking-widest mb-1 sm:mb-0">{item.label}</span>
+                  <span className="font-black text-foreground text-base sm:text-lg">{item.value}</span>
                 </div>
               ))}
             </div>

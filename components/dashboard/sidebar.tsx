@@ -29,6 +29,7 @@ export type UserRole = "homeowner" | "worker" | "admin"
 
 interface SidebarProps {
   role: UserRole
+  className?: string
 }
 
 const homeownerNavItems = [
@@ -63,7 +64,7 @@ const bottomNavItems = [
   { icon: HelpCircle, label: "Help", href: "/help" },
 ]
 
-export function DashboardSidebar({ role }: SidebarProps) {
+export function DashboardSidebar({ role, className }: SidebarProps) {
   const pathname = usePathname()
   const router = useRouter() // Initialize router
   const [isCollapsed, setIsCollapsed] = useState(false)
@@ -81,8 +82,9 @@ export function DashboardSidebar({ role }: SidebarProps) {
   return (
     <aside
       className={cn(
-        "fixed left-0 top-0 z-40 h-screen transition-all duration-500 glass border-r border-border/50 shadow-[4px_0_24px_oklch(0_0_0/0.02)]",
-        isCollapsed ? "w-[80px]" : "w-64"
+        "h-screen transition-all duration-500 glass border-r border-border/50 shadow-[4px_0_24px_oklch(0_0_0/0.02)]",
+        isCollapsed ? "w-[80px]" : "w-64",
+        className
       )}
     >
       <div className="flex flex-col h-full">

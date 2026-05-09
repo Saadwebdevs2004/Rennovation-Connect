@@ -1,18 +1,30 @@
 import { DashboardLayout } from "@/components/dashboard/layout"
+import { cookies } from "next/headers"
 
-export default function HomeownerLayout({
+export default async function HomeownerLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
-  // In production, user data would come from auth context/session
-  const user = {
-    name: "Sarah Mitchell",
-    email: "sarah@example.com",
+  const cookieStore = await cookies()
+  const session = cookieStore.get('rc_session')
+  
+  let userData = { name: "Homeowner", email: "" }
+  
+  if (session) {
+    try {
+      const user = JSON.parse(decodeURIComponent(session.value))
+      userData = {
+        name: user.fullName || user.name || "Homeowner",
+        email: user.email || ""
+      }
+    } catch (e) {
+      console.error("Layout session parse error:", e)
+    }
   }
 
   return (
-    <DashboardLayout role="homeowner" user={user}>
+    <DashboardLayout role="homeowner" user={userData}>
       {children}
     </DashboardLayout>
   )

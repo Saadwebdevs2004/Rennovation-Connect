@@ -303,7 +303,7 @@ export default function HomeownerJobDetailsPage() {
                     )}
                     <Button onClick={handleVerifyCompletion} className="w-full h-16 rounded-2xl font-black uppercase tracking-widest text-sm shadow-xl shadow-primary/30 transition-all hover:scale-[1.02]">
                       <CheckCircle className="w-6 h-6 mr-3" />
-                      Verify & Release Payment
+                      Verify Completion & Approve
                     </Button>
                   </CardContent>
                 </Card>

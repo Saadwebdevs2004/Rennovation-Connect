@@ -134,7 +134,7 @@ export default function WorkerEarningsPage() {
     <div className="space-y-8 animate-fade-in pb-12">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6">
         <div className="space-y-1">
-          <h1 className="text-3xl font-black text-foreground tracking-tight">Earnings Console</h1>
+          <h1 className="text-2xl sm:text-3xl font-black text-foreground tracking-tight">Earnings Console</h1>
           <p className="text-muted-foreground font-medium flex items-center gap-2">
             <Wallet className="w-4 h-4 text-primary" />
             Managing your professional revenue
@@ -161,7 +161,7 @@ export default function WorkerEarningsPage() {
 
       {/* Stats Cards */}
       <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        <Card className="rounded-3xl border-none shadow-xl shadow-primary/5 bg-gradient-to-br from-primary/10 to-transparent">
+        <Card className="rounded-[2rem] border-none shadow-xl shadow-primary/5 bg-gradient-to-br from-primary/10 to-transparent">
           <CardContent className="p-7 space-y-4">
             <div className="w-12 h-12 bg-primary rounded-2xl flex items-center justify-center shadow-lg shadow-primary/20">
               <PkrIcon className="h-6 w-6 text-white" />
@@ -252,12 +252,12 @@ export default function WorkerEarningsPage() {
                 <Building2 className="h-6 w-6 text-primary" />
               </div>
               <div className="flex-1">
-                <p className="font-bold text-foreground">Standard Bank</p>
-                <p className="text-xs text-muted-foreground font-medium">•••• 4242</p>
+                <p className="font-bold text-foreground text-sm sm:text-base">Standard Bank</p>
+                <p className="text-[11px] sm:text-xs text-muted-foreground font-medium">•••• 4242</p>
               </div>
-              <Badge className="bg-success text-white border-none text-[10px] uppercase font-black tracking-widest px-3">Active</Badge>
+              <Badge className="bg-success text-white border-none text-[9px] sm:text-[10px] uppercase font-black tracking-widest px-2 sm:px-3">Active</Badge>
             </div>
-            <Button variant="outline" className="w-full h-14 rounded-2xl font-black text-sm uppercase tracking-widest border-dashed border-2 hover:border-primary hover:text-primary transition-all">
+            <Button variant="outline" className="w-full h-14 rounded-2xl font-black text-xs sm:text-sm uppercase tracking-widest border-dashed border-2 hover:border-primary hover:text-primary transition-all">
               <Plus className="mr-2 w-4 h-4" /> Connect Bank Account
             </Button>
           </CardContent>

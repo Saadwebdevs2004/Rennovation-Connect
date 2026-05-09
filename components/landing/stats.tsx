@@ -9,7 +9,7 @@ const stats = [
 
 export function Stats() {
   return (
-    <section className="py-20 lg:py-28 bg-primary relative overflow-hidden">
+    <section className="py-12 lg:py-28 bg-primary relative overflow-hidden">
       {/* Background Pattern */}
       <div className="absolute inset-0 bg-[linear-gradient(to_right,oklch(1_0_0/0.05)_1px,transparent_1px),linear-gradient(to_bottom,oklch(1_0_0/0.05)_1px,transparent_1px)] bg-[size:4rem_4rem]" />
       
@@ -34,7 +34,7 @@ export function Stats() {
               style={{ animationDelay: `${index * 100}ms` }}
             >
               <div className="bg-primary-foreground/10 backdrop-blur-sm rounded-2xl p-8 border border-primary-foreground/10 hover:bg-primary-foreground/15 transition-colors">
-                <p className="text-4xl lg:text-5xl font-bold text-primary-foreground mb-2 group-hover:scale-105 transition-transform">
+                <p className="text-3xl lg:text-5xl font-bold text-primary-foreground mb-2 group-hover:scale-105 transition-transform">
                   {stat.value}
                 </p>
                 <p className="text-lg font-semibold text-primary-foreground mb-1">{stat.label}</p>

@@ -58,7 +58,7 @@ const services = [
 
 export function Services() {
   return (
-    <section id="services" className="py-24 lg:py-32 bg-background relative overflow-hidden">
+    <section id="services" className="py-16 lg:py-32 bg-background relative overflow-hidden">
       {/* Decorative background element */}
       <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-primary/5 rounded-full blur-[120px] -mr-64 -mt-64" />
 
@@ -68,7 +68,7 @@ export function Services() {
             <Badge variant="outline" className="mb-4 border-primary/20 bg-primary/5 text-primary">
               Our Expertise
             </Badge>
-            <h2 className="text-4xl lg:text-6xl font-bold text-foreground mb-6 tracking-tight">
+            <h2 className="text-3xl sm:text-4xl lg:text-6xl font-bold text-foreground mb-6 tracking-tight">
               Professional Services for <br/>
               <span className="text-primary">Every Need</span>
             </h2>

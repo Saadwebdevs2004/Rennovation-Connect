@@ -56,7 +56,7 @@ export function JobCard({ job, variant = "homeowner", className }: JobCardProps)
 
   return (
     <div className={cn(
-      "bg-card rounded-xl border border-border p-5 hover:border-primary/30 hover:shadow-lg transition-all group",
+      "bg-card rounded-2xl border border-border p-4 sm:p-5 hover:border-primary/30 hover:shadow-lg transition-all group",
       className
     )}>
       <div className="flex items-start justify-between gap-4 mb-4">
@@ -87,7 +87,7 @@ export function JobCard({ job, variant = "homeowner", className }: JobCardProps)
         </div>
         <div className="flex items-center gap-1.5">
           <PkrIcon className="w-4 h-4" />
-          <span>RS {job.budget.min.toLocaleString()} - RS {job.budget.max.toLocaleString()}</span>
+          <span>RS {Number(job.budget.min || 0).toLocaleString()} - RS {Number(job.budget.max || 0).toLocaleString()}</span>
         </div>
         <div className="flex items-center gap-1.5">
           <Users className="w-4 h-4" />
@@ -141,7 +141,7 @@ export function JobCard({ job, variant = "homeowner", className }: JobCardProps)
         ) : (
           <>
             <div className="text-lg font-bold text-primary">
-              RS {job.budget.min.toLocaleString()} - RS {job.budget.max.toLocaleString()}
+              RS {Number(job.budget.min || 0).toLocaleString()} - RS {Number(job.budget.max || 0).toLocaleString()}
             </div>
             {job.hasBidded ? (
               <Button size="sm" variant="secondary" disabled>
