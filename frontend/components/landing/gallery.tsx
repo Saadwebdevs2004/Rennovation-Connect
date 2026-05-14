@@ -2,6 +2,7 @@
 
 import { Badge } from "@/components/ui/badge"
 import { ArrowRight, Sparkles } from "lucide-react"
+import Image from "next/image"
 import Link from "next/link"
 
 export function Gallery() {
@@ -56,10 +57,11 @@ export function Gallery() {
           <div className="relative group animate-fade-in-up" style={{ animationDelay: "200ms" }}>
             {/* Main Image Frame */}
             <div className="relative z-10 rounded-[40px] overflow-hidden border border-white/10 shadow-[0_32px_64px_oklch(0_0_0/0.15)] aspect-[4/5] lg:aspect-square">
-              <img 
-                src="/residential_living_after.png" 
+              <Image 
+                src="/residential_living_after.webp" 
                 alt="Modern Renovation Masterpiece" 
-                className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105"
+                fill
+                className="object-cover transition-transform duration-1000 group-hover:scale-105"
               />
               
               {/* Overlays */}

@@ -23,8 +23,8 @@ const projects = [
     category: "residential",
     title: "The Obsidian Lounge",
     description: "Transforming a dated 90s living space into a minimalist glass masterpiece.",
-    beforeImage: "/residential_living_before.png",
-    afterImage: "/residential_living_after.png",
+    beforeImage: "/residential_living_before.webp",
+    afterImage: "/residential_living_after.webp",
     specs: { client: "Private Residence", area: "1,200 sqft", location: "DHA Phase 6" }
   },
   {
@@ -32,8 +32,8 @@ const projects = [
     category: "residential",
     title: "Monochrome Chef's Kitchen",
     description: "A complete overhaul focusing on ergonomic flow and high-end marble finishes.",
-    beforeImage: "/residential_kitchen_before.png",
-    afterImage: "/residential_kitchen_after.png",
+    beforeImage: "/residential_kitchen_before.webp",
+    afterImage: "/residential_kitchen_after.webp",
     specs: { client: "Family Home", area: "450 sqft", location: "Gulberg III" }
   },
   {
@@ -41,8 +41,8 @@ const projects = [
     category: "residential",
     title: "The Marble Oasis",
     description: "Converting a cramped ensuite into a spa-inspired sanctuary with floating vanities.",
-    beforeImage: "/residential_kitchen_before.png",
-    afterImage: "/modern_bathroom_service_1777068274636.png",
+    beforeImage: "/residential_kitchen_before.webp",
+    afterImage: "/modern_bathroom_service_1777068274636.webp",
     specs: { client: "Luxury Apartment", area: "220 sqft", location: "Bahria Town" }
   },
   {
@@ -50,8 +50,8 @@ const projects = [
     category: "commercial",
     title: "TechFlow Workspace",
     description: "Industrial warehouse conversion into a vibrant, high-tech collaborative office.",
-    beforeImage: "/commercial_office_before.png",
-    afterImage: "/commercial_office_after.png",
+    beforeImage: "/commercial_office_before.webp",
+    afterImage: "/commercial_office_after.webp",
     specs: { client: "SaaS Solutions", area: "3,500 sqft", location: "Johar Town" }
   },
   {
@@ -59,8 +59,8 @@ const projects = [
     category: "commercial",
     title: "Skyline Innovation Hub",
     description: "A high-altitude office renovation focused on panoramic views and open-plan flow.",
-    beforeImage: "/commercial_office_before.png",
-    afterImage: "/renovation_masterpiece_gallery_1777067891424.png",
+    beforeImage: "/commercial_office_before.webp",
+    afterImage: "/renovation_masterpiece_gallery_1777067891424.webp",
     specs: { client: "Nexus Corp", area: "5,200 sqft", location: "Main Boulevard" }
   },
   {
@@ -68,8 +68,8 @@ const projects = [
     category: "commercial",
     title: "The Creative Nexus",
     description: "Transforming an old retail unit into a modern architectural studio.",
-    beforeImage: "/commercial_office_before.png",
-    afterImage: "/hero-image.png",
+    beforeImage: "/commercial_office_before.webp",
+    afterImage: "/hero-image.webp",
     specs: { client: "Design Collective", area: "1,800 sqft", location: "Model Town" }
   },
   {
@@ -77,8 +77,8 @@ const projects = [
     category: "restaurants",
     title: "The Copper Bistro",
     description: "Converting a cramped kitchen into a high-capacity gourmet culinary center.",
-    beforeImage: "/residential_kitchen_before.png",
-    afterImage: "/residential_kitchen_after.png",
+    beforeImage: "/residential_kitchen_before.webp",
+    afterImage: "/residential_kitchen_after.webp",
     specs: { client: "Copper Hospitality", area: "800 sqft", location: "Gulberg Main" }
   },
   {
@@ -86,8 +86,8 @@ const projects = [
     category: "restaurants",
     title: "Vibe Dining Lounge",
     description: "Modernizing a traditional eatery with sleek lighting and open-concept dining.",
-    beforeImage: "/residential_living_before.png",
-    afterImage: "/modern_kitchen_service_1777068298704.png",
+    beforeImage: "/residential_living_before.webp",
+    afterImage: "/modern_kitchen_service_1777068298704.webp",
     specs: { client: "Vibe Group", area: "1,400 sqft", location: "DHA Phase 5" }
   },
   {
@@ -95,8 +95,8 @@ const projects = [
     category: "restaurants",
     title: "The Rustic Table",
     description: "A heritage building restoration turned into a cozy, high-end farm-to-table restaurant.",
-    beforeImage: "/residential_living_before.png",
-    afterImage: "/happy_homeowner_renovated_space_1777068461287.png",
+    beforeImage: "/residential_living_before.webp",
+    afterImage: "/happy_homeowner_renovated_space_1777068461287.webp",
     specs: { client: "Artisan Eats", area: "2,100 sqft", location: "Old City" }
   },
 ]

@@ -77,11 +77,13 @@ export default function LoginPage() {
       {/* Decorative Left Panel */}
       <div className="hidden lg:flex flex-1 relative items-center justify-center overflow-hidden">
         <Image
-          src="/login-bg.png"
+          src="/login-bg.webp"
           alt="Luxury Architecture"
           fill
           className="object-cover transition-transform duration-[10s] hover:scale-110"
           priority
+          placeholder="blur"
+          blurDataURL="data:image/webp;base64,UklGRmYAAABXRUJQVlA4IFoAAADwAQCdASoIAAgAAkA4JQBOiP+AAsf9vAAK8oXlR0vSj/vSj/vSj/vSj/vSj/vSj/vSj/vSj/vSj/vSj/vSj/vSj/vSj/vSj/vSj/vSj/vSj/vSj/vSj/vSj/vSj/vSj/wAA"
         />
         <div className="absolute inset-0 bg-gradient-to-tr from-primary/80 via-primary/20 to-transparent mix-blend-multiply" />
         <div className="absolute inset-0 bg-black/20" />

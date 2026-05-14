@@ -76,7 +76,7 @@ export function HeroSection() {
               {/* Main Image Container */}
               <div className="relative h-full w-full rounded-[32px] overflow-hidden border border-white/20 shadow-2xl animate-float">
                 <Image
-                  src="/hero-image.png"
+                  src="/hero-image.webp"
                   alt="Modern Home Renovation"
                   fill
                   className="object-cover transition-transform duration-700 hover:scale-105"
@@ -89,7 +89,7 @@ export function HeroSection() {
                     <div className="flex -space-x-3">
                       {[1, 2, 3, 4].map((i) => (
                         <div key={i} className="w-10 h-10 rounded-full border-2 border-background bg-muted flex items-center justify-center overflow-hidden">
-                          <Image src={`/placeholder-user.jpg`} alt="User" width={40} height={40} />
+                          <Image src={`/placeholder-user.webp`} alt="User" width={40} height={40} />
                         </div>
                       ))}
                     </div>

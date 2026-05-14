@@ -15,7 +15,7 @@ export const posts = [
     date: "May 10, 2024",
     readTime: "8 min read",
     category: "Interior Design",
-    image: "/blog/living-room.png",
+    image: "/blog/living-room.webp",
     featured: true
   },
   {
@@ -26,7 +26,7 @@ export const posts = [
     date: "May 8, 2024",
     readTime: "6 min read",
     category: "Renovation",
-    image: "/blog/kitchen.png"
+    image: "/blog/kitchen.webp"
   },
   {
     slug: "spa-bathroom-experience",
@@ -36,7 +36,7 @@ export const posts = [
     date: "May 5, 2024",
     readTime: "5 min read",
     category: "Luxury Living",
-    image: "/blog/bathroom.png"
+    image: "/blog/bathroom.webp"
   },
   {
     slug: "smart-home-integration",
@@ -46,7 +46,7 @@ export const posts = [
     date: "May 2, 2024",
     readTime: "7 min read",
     category: "Technology",
-    image: "/blog/smart-home.png"
+    image: "/blog/smart-home.webp"
   },
   {
     slug: "sustainable-luxury-materials",
@@ -56,7 +56,7 @@ export const posts = [
     date: "Apr 28, 2024",
     readTime: "9 min read",
     category: "Sustainability",
-    image: "/blog/sustainability.png"
+    image: "/blog/sustainability.webp"
   },
   {
     slug: "indoor-outdoor-landscaping",
@@ -66,7 +66,7 @@ export const posts = [
     date: "Apr 25, 2024",
     readTime: "6 min read",
     category: "Architecture",
-    image: "/blog/landscaping.png"
+    image: "/blog/landscaping.webp"
   },
   {
     slug: "ultimate-home-office",
@@ -76,7 +76,7 @@ export const posts = [
     date: "Apr 20, 2024",
     readTime: "5 min read",
     category: "Home Office",
-    image: "/blog/home-office.png"
+    image: "/blog/home-office.webp"
   },
   {
     slug: "lighting-impact-mood",
@@ -86,7 +86,7 @@ export const posts = [
     date: "Apr 15, 2024",
     readTime: "7 min read",
     category: "Design Tips",
-    image: "/blog/lighting.png"
+    image: "/blog/lighting.webp"
   },
   {
     slug: "herringbone-flooring-appeal",
@@ -96,7 +96,7 @@ export const posts = [
     date: "Apr 10, 2024",
     readTime: "4 min read",
     category: "Materials",
-    image: "/blog/flooring.png"
+    image: "/blog/flooring.webp"
   },
   {
     slug: "psychology-of-color",
@@ -106,7 +106,7 @@ export const posts = [
     date: "Apr 5, 2024",
     readTime: "8 min read",
     category: "Interior Design",
-    image: "/blog/color-palette.png"
+    image: "/blog/color-palette.webp"
   },
   {
     slug: "small-space-solutions",
@@ -116,7 +116,7 @@ export const posts = [
     date: "Mar 30, 2024",
     readTime: "6 min read",
     category: "Urban Living",
-    image: "/blog/small-spaces.png"
+    image: "/blog/small-spaces.webp"
   },
   {
     slug: "modern-dining-room-hosting",
@@ -126,7 +126,7 @@ export const posts = [
     date: "Mar 25, 2024",
     readTime: "5 min read",
     category: "Lifestyle",
-    image: "/blog/dining-room.png"
+    image: "/blog/dining-room.webp"
   },
   {
     slug: "modernizing-exterior-cladding",
@@ -136,7 +136,7 @@ export const posts = [
     date: "Mar 20, 2024",
     readTime: "7 min read",
     category: "Renovation",
-    image: "/blog/exterior.png"
+    image: "/blog/exterior.webp"
   },
   {
     slug: "master-bedroom-suite-luxury",
@@ -146,7 +146,7 @@ export const posts = [
     date: "Mar 15, 2024",
     readTime: "6 min read",
     category: "Luxury Living",
-    image: "/blog/bedroom.png"
+    image: "/blog/bedroom.webp"
   },
   {
     slug: "basement-potential-luxury",
@@ -156,7 +156,7 @@ export const posts = [
     date: "Mar 10, 2024",
     readTime: "8 min read",
     category: "Renovation",
-    image: "/blog/basement.png"
+    image: "/blog/basement.webp"
   }
 ]
 
@@ -293,7 +293,7 @@ export default function BlogPage() {
 
           {/* Newsletter / CTA */}
           <div className="mt-32 relative rounded-[3rem] overflow-hidden bg-primary px-8 py-16 lg:p-20 text-center text-primary-foreground shadow-2xl">
-            <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10" />
+            <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.webp')] opacity-10" />
             <div className="relative max-w-2xl mx-auto space-y-8">
               <h2 className="text-3xl lg:text-5xl font-bold tracking-tight">Stay Inspired</h2>
               <p className="text-lg text-primary-foreground/80 font-light">

@@ -1,6 +1,7 @@
 "use client"
 
 import Link from "next/link"
+import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { ArrowRight, Wrench, Sparkles } from "lucide-react"
@@ -65,10 +66,11 @@ export function CTASection() {
 
             {/* Right Image */}
             <div className="relative min-h-[400px] lg:min-h-full overflow-hidden group">
-              <img 
-                src="/happy_homeowner_renovated_space_1777068461287.png" 
+              <Image 
+                src="/happy_homeowner_renovated_space_1777068461287.webp" 
                 alt="Happy Homeowner in Renovated Space" 
-                className="absolute inset-0 w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105"
+                fill
+                className="object-cover transition-transform duration-1000 group-hover:scale-105"
               />
               {/* Subtle Overlay */}
               <div className="absolute inset-0 bg-gradient-to-r from-card/20 to-transparent lg:hidden" />

@@ -15,7 +15,7 @@ const posts = [
     slug: "spatial-harmony-open-concept",
     title: "The Art of Spatial Harmony: A Guide to Open-Concept Living (Baithak & Lounge)",
     category: "Interior Design",
-    image: "/blog/living-room.png",
+    image: "/blog/living-room.webp",
     author: "Zainab Sheikh",
     date: "May 10, 2024",
     readTime: "8 min read",
@@ -26,7 +26,7 @@ const posts = [
       
       <figure class="my-12 group">
         <div class="relative aspect-[16/9] rounded-[2.5rem] overflow-hidden border border-border/50 shadow-2xl">
-          <img src="/blog/living-room.png" alt="Open Concept Living" class="object-cover w-full h-full transition-transform duration-700 group-hover:scale-105" />
+          <img src="/blog/living-room.webp" alt="Open Concept Living" class="object-cover w-full h-full transition-transform duration-700 group-hover:scale-105" />
         </div>
         <figcaption class="text-center mt-6 text-sm text-muted-foreground italic font-light tracking-wide">
           A masterclass in balancing negative space and functional clusters in a modern Pakistani Lounge.
@@ -61,7 +61,7 @@ const posts = [
     slug: "luxury-kitchen-trends",
     title: "Culinary Sanctuaries: Trends in Luxury Kitchens (Bawarchi Khana)",
     category: "Renovation",
-    image: "/blog/kitchen.png",
+    image: "/blog/kitchen.webp",
     author: "Ahmed Khan",
     date: "May 8, 2024",
     readTime: "6 min read",
@@ -72,7 +72,7 @@ const posts = [
       
       <figure class="my-12">
         <div class="relative aspect-[16/9] rounded-[2.5rem] overflow-hidden border border-border/50 shadow-2xl">
-          <img src="/blog/kitchen.png" alt="Luxury Kitchen Design" class="object-cover w-full h-full" />
+          <img src="/blog/kitchen.webp" alt="Luxury Kitchen Design" class="object-cover w-full h-full" />
         </div>
       </figure>
 
@@ -88,7 +88,7 @@ const posts = [
     slug: "spa-bathroom-experience",
     title: "The Spa Revolution: Elevating Your Bathroom (Ghusal Khana)",
     category: "Luxury Living",
-    image: "/blog/bathroom.png",
+    image: "/blog/bathroom.webp",
     author: "Faiza Ahmed",
     date: "May 5, 2024",
     readTime: "5 min read",
@@ -99,7 +99,7 @@ const posts = [
       
       <figure class="my-12">
         <div class="relative aspect-[16/9] rounded-[2.5rem] overflow-hidden border border-border/50 shadow-2xl">
-          <img src="/blog/bathroom.png" alt="Spa Bathroom" class="object-cover w-full h-full" />
+          <img src="/blog/bathroom.webp" alt="Spa Bathroom" class="object-cover w-full h-full" />
         </div>
       </figure>
 
@@ -115,7 +115,7 @@ const posts = [
     slug: "smart-home-integration",
     title: "Smart Integration: The Future of Seamless Home Automation",
     category: "Technology",
-    image: "/blog/smart-home.png",
+    image: "/blog/smart-home.webp",
     author: "Usman Ali",
     date: "May 2, 2024",
     readTime: "7 min read",
@@ -131,7 +131,7 @@ const posts = [
     slug: "sustainable-luxury-materials",
     title: "Sustainable Luxury: Eco-Conscious Materials (Lakri & Pathar)",
     category: "Sustainability",
-    image: "/blog/sustainability.png",
+    image: "/blog/sustainability.webp",
     author: "Hina Malik",
     date: "Apr 28, 2024",
     readTime: "9 min read",
@@ -144,7 +144,7 @@ const posts = [
     slug: "indoor-outdoor-landscaping",
     title: "Curated Landscapes: Designing Your Outdoor Space (Sehan)",
     category: "Architecture",
-    image: "/blog/landscaping.png",
+    image: "/blog/landscaping.webp",
     author: "Bilal Shah",
     date: "Apr 25, 2024",
     readTime: "6 min read",
@@ -157,7 +157,7 @@ const posts = [
     slug: "ultimate-home-office",
     title: "The Productive Retreat: Designing the Ultimate Home Office",
     category: "Home Office",
-    image: "/blog/home-office.png",
+    image: "/blog/home-office.webp",
     author: "Sana Ijaz",
     date: "Apr 20, 2024",
     readTime: "5 min read",
@@ -170,7 +170,7 @@ const posts = [
     slug: "lighting-impact-mood",
     title: "Illuminating Architecture: The Impact of Lighting (Roshni)",
     category: "Design Tips",
-    image: "/blog/lighting.png",
+    image: "/blog/lighting.webp",
     author: "Hamza Butt",
     date: "Apr 15, 2024",
     readTime: "7 min read",
@@ -183,7 +183,7 @@ const posts = [
     slug: "herringbone-flooring-appeal",
     title: "Foundations of Style: The Timeless Appeal of Herringbone Flooring (Farsh)",
     category: "Materials",
-    image: "/blog/flooring.png",
+    image: "/blog/flooring.webp",
     author: "Maryam Jameel",
     date: "Apr 10, 2024",
     readTime: "4 min read",
@@ -196,7 +196,7 @@ const posts = [
     slug: "psychology-of-color",
     title: "The Psychology of Color (Rang): Crafting a Sophisticated Palette",
     category: "Interior Design",
-    image: "/blog/color-palette.png",
+    image: "/blog/color-palette.webp",
     author: "Zeeshan Haider",
     date: "Apr 5, 2024",
     readTime: "8 min read",
@@ -209,7 +209,7 @@ const posts = [
     slug: "small-space-solutions",
     title: "Compact Elegance: Solutions for Small Urban Spaces (Choti Jagah)",
     category: "Urban Living",
-    image: "/blog/small-spaces.png",
+    image: "/blog/small-spaces.webp",
     author: "Amna Rehman",
     date: "Mar 30, 2024",
     readTime: "6 min read",
@@ -222,7 +222,7 @@ const posts = [
     slug: "modern-dining-room-hosting",
     title: "The Formal Revival: Hosting in the Modern Dining Room",
     category: "Lifestyle",
-    image: "/blog/dining-room.png",
+    image: "/blog/dining-room.webp",
     author: "Farhan Saeed",
     date: "Mar 25, 2024",
     readTime: "5 min read",
@@ -235,7 +235,7 @@ const posts = [
     slug: "modernizing-exterior-cladding",
     title: "Curb Appeal Reimagined: Modernizing Your Home's Exterior",
     category: "Renovation",
-    image: "/blog/exterior.png",
+    image: "/blog/exterior.webp",
     author: "Rabia Bashir",
     date: "Mar 20, 2024",
     readTime: "7 min read",
@@ -248,7 +248,7 @@ const posts = [
     slug: "master-bedroom-suite-luxury",
     title: "Private Sanctuaries: Creating a Luxury Master Bedroom (Kamra)",
     category: "Luxury Living",
-    image: "/blog/bedroom.png",
+    image: "/blog/bedroom.webp",
     author: "Omar Khalid",
     date: "Mar 15, 2024",
     readTime: "6 min read",
@@ -261,7 +261,7 @@ const posts = [
     slug: "basement-potential-luxury",
     title: "Subterranean Luxury: Maximizing Your Basement (Tehkhana)",
     category: "Renovation",
-    image: "/blog/basement.png",
+    image: "/blog/basement.webp",
     author: "Nida Aziz",
     date: "Mar 10, 2024",
     readTime: "8 min read",
@@ -288,7 +288,7 @@ export default function BlogPostPage({ params }: { params: Promise<{ slug: strin
     </p>
     <figure class="my-12">
       <div class="relative aspect-[16/9] rounded-[2rem] overflow-hidden border border-border/50 shadow-xl">
-        <img src="/blog/landscaping.png" alt="Reference Image" class="object-cover w-full h-full" />
+        <img src="/blog/landscaping.webp" alt="Reference Image" class="object-cover w-full h-full" />
       </div>
       <figcaption class="text-center mt-4 text-sm text-muted-foreground italic font-light">
         High-quality detailing is the signature of a professional project.
@@ -419,7 +419,7 @@ export default function BlogPostPage({ params }: { params: Promise<{ slug: strin
               {[1, 2, 3].map((i) => (
                 <div key={i} className="group flex gap-4 cursor-pointer">
                   <div className="relative w-16 h-16 rounded-xl overflow-hidden shrink-0 border border-border">
-                    <OptimizedImage src={`/blog/${i === 1 ? 'kitchen' : i === 2 ? 'bathroom' : 'living-room'}.png`} alt="Trending" />
+                    <OptimizedImage src={`/blog/${i === 1 ? 'kitchen' : i === 2 ? 'bathroom' : 'living-room'}.webp`} alt="Trending" />
                   </div>
                   <div className="grid md:grid-cols-2 gap-6 my-10 not-prose">
                     <OptimizedImage
