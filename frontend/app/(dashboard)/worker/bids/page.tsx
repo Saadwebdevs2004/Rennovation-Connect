@@ -70,7 +70,7 @@ export default function WorkerBidsPage() {
   const { data: rawBids, isLoading } = useSWR(
     userId ? `/api/proxy?path=${encodeURIComponent(`/api/bids/worker/${userId}`)}` : null,
     fetcher,
-    { refreshInterval: 5000 }
+    { refreshInterval: 15000 }
   )
 
   const bids = Array.isArray(rawBids) ? rawBids.map(b => ({

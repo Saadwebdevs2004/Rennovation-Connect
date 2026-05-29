@@ -60,7 +60,7 @@ export default function HomeownerBidsPage() {
   const { data: rawBids, isLoading } = useSWR(
     userId ? `/api/proxy?path=${encodeURIComponent(`/api/bids/homeowner/${userId}`)}` : null,
     fetcher,
-    { refreshInterval: 5000 }
+    { refreshInterval: 15000 }
   )
 
   const bids: Bid[] = Array.isArray(rawBids) ? rawBids.map(b => ({

@@ -56,7 +56,7 @@ export default function WorkerActiveJobsPage() {
   const { data: rawBids, error: bidsError } = useSWR(
     userId ? `/api/proxy?path=${encodeURIComponent(`/api/bids/worker/${userId}`)}` : null,
     fetcher,
-    { refreshInterval: 5000 }
+    { refreshInterval: 20000 }
   )
 
   const isLoading = !userId || (!rawBids && !bidsError);

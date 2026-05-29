@@ -24,7 +24,7 @@ export default function WorkerMessages() {
   const { data: contactsData, mutate: mutateContacts } = useSWR(
     userId ? `/api/proxy?path=${encodeURIComponent(`/api/messages/conversations/${userId}`)}` : null,
     fetcher,
-    { refreshInterval: 3000 }
+    { refreshInterval: 6000 }
   )
 
   const contacts = Array.isArray(contactsData) ? contactsData.map((c: any) => ({
@@ -38,7 +38,7 @@ export default function WorkerMessages() {
   const { data: messagesData } = useSWR(
     userId && selectedContact ? `/api/proxy?path=${encodeURIComponent(`/api/messages/${userId}/${selectedContact.id}`)}` : null,
     fetcher,
-    { refreshInterval: 3000 }
+    { refreshInterval: 6000 }
   )
 
   const messages = Array.isArray(messagesData) ? messagesData : []
