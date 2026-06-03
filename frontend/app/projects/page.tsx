@@ -176,7 +176,7 @@ export default function ProjectsPage() {
 
                 {/* Technical Specs (Archi-Cubes Style) */}
                 <div className="lg:col-span-4 space-y-8 lg:sticky lg:top-32">
-                  <div className="bg-white/80 dark:bg-card/85 backdrop-blur-md rounded-[40px] border border-border/60 p-10 shadow-[0_15px_40px_rgba(0,0,0,0.03)] hover:border-primary/30 transition-all duration-500 group/card">
+                  <div className="bg-white/95 dark:bg-card/98 rounded-[40px] border border-border/60 p-10 shadow-[0_15px_40px_rgba(0,0,0,0.03)] hover:border-primary/30 transition-all duration-500 group/card">
                     <div className="flex items-center justify-between mb-8 border-b border-border/50 pb-5">
                       <h4 className="text-xs font-black uppercase tracking-widest text-primary flex items-center gap-2">
                         <ShieldCheck className="w-4 h-4 text-primary animate-pulse" />
@@ -226,7 +226,7 @@ export default function ProjectsPage() {
                     </div>
                   </div>
 
-                  <div className="p-7 rounded-[32px] bg-primary/[0.02] border border-primary/10 backdrop-blur-sm relative overflow-hidden group/box">
+                  <div className="p-7 rounded-[32px] bg-primary/[0.04] dark:bg-primary/[0.06] border border-primary/10 relative overflow-hidden group/box">
                     <div className="absolute top-0 left-0 w-1 h-full bg-primary/45 group-hover/box:h-full transition-all duration-500" />
                     <p className="text-xs text-muted-foreground font-semibold leading-relaxed pl-2">
                       This build exhibits our unwavering dedication to architectural elegance, structural perfection, and eco-friendly design frameworks.

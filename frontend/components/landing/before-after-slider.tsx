@@ -127,7 +127,7 @@ export function BeforeAfterSlider({ beforeImage, afterImage, title, description,
           style={{ left: `${sliderPosition}%` }}
         >
           {/* Glassmorphic floating Before/After Pill Badge */}
-          <div className="px-3.5 py-2 bg-white/95 backdrop-blur-md rounded-full shadow-[0_4px_20px_rgba(0,0,0,0.2)] border border-primary/20 flex items-center gap-2 text-[9px] font-black uppercase tracking-widest text-primary transition-transform group-hover:scale-105">
+          <div className="px-3.5 py-2 bg-white dark:bg-card rounded-full shadow-[0_4px_20px_rgba(0,0,0,0.2)] border border-primary/20 flex items-center gap-2 text-[9px] font-black uppercase tracking-widest text-primary transition-transform group-hover:scale-105">
             <span>Before</span>
             <svg className="w-3.5 h-3.5 text-primary animate-pulse" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="3">
               <path strokeLinecap="round" strokeLinejoin="round" d="M8 7l-5 5 5 5M16 7l5 5-5 5" />

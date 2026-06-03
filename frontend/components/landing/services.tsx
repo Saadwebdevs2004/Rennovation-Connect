@@ -91,7 +91,7 @@ export function Services() {
           {services.map((service, index) => (
             <div
               key={service.title}
-              className="group relative bg-card/50 backdrop-blur-sm rounded-[32px] border border-border/50 overflow-hidden hover:border-primary/50 hover:shadow-[0_20px_50px_oklch(0.5_0.18_250/0.1)] transition-all duration-700 animate-fade-in-up"
+              className="group relative bg-card/90 dark:bg-card/95 rounded-[32px] border border-border/50 overflow-hidden hover:border-primary/50 hover:shadow-[0_20px_50px_oklch(0.5_0.18_250/0.1)] transition-all duration-700 animate-fade-in-up"
               style={{ animationDelay: `${index * 100}ms` }}
             >
               {/* Image Container */}

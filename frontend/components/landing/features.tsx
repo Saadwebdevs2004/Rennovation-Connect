@@ -97,7 +97,7 @@ export function Features() {
             return (
               <div
                 key={feature.title}
-                className="group relative bg-card/50 backdrop-blur-sm rounded-[24px] border border-border/50 p-8 hover:border-primary/50 hover:shadow-[0_20px_50px_oklch(0.5_0.18_250/0.1)] transition-all duration-500 animate-fade-in-up"
+                className="group relative bg-card/90 dark:bg-card/95 rounded-[24px] border border-border/50 p-8 hover:border-primary/50 hover:shadow-[0_20px_50px_oklch(0.5_0.18_250/0.1)] transition-all duration-500 animate-fade-in-up"
                 style={{ animationDelay: `${index * 100}ms` }}
               >
                 <div className={`w-14 h-14 rounded-2xl ${feature.bg} flex items-center justify-center mb-6 group-hover:scale-110 group-hover:shadow-lg transition-all duration-500`}>

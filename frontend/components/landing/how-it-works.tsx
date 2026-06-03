@@ -109,7 +109,7 @@ function StepCard({ step, index }: { step: typeof homeownerSteps[0]; index: numb
         <div className="hidden lg:block absolute top-12 left-[calc(100%-2rem)] w-full h-[2px] bg-gradient-to-r from-primary/30 to-transparent z-0" />
       )}
       
-      <div className="relative z-10 bg-card/50 backdrop-blur-sm rounded-[32px] border border-border/50 p-8 hover:border-primary/50 hover:shadow-[0_20px_50px_oklch(0.5_0.18_250/0.1)] transition-all duration-500 h-full">
+      <div className="relative z-10 bg-card/90 dark:bg-card/95 rounded-[32px] border border-border/50 p-8 hover:border-primary/50 hover:shadow-[0_20px_50px_oklch(0.5_0.18_250/0.1)] transition-all duration-500 h-full">
         <div className="flex items-center justify-between mb-8">
           <div className="w-16 h-16 rounded-2xl bg-primary/5 flex items-center justify-center group-hover:bg-primary group-hover:text-primary-foreground group-hover:shadow-xl transition-all duration-500">
             <Icon className="w-8 h-8 text-primary group-hover:text-primary-foreground transition-all duration-500" />
