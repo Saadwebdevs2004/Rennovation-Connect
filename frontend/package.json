@@ -4,8 +4,10 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "dev:light": "next dev --webpack",
     "build": "next build",
     "start": "next start",
+    "start:light": "next build && next start",
     "lint": "eslint ."
   },
   "dependencies": {

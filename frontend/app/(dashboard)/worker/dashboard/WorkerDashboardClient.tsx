@@ -198,7 +198,7 @@ export function WorkerDashboardClient({ userName, statsData, bidsData, profileDa
           <Card className="glass-card rounded-[3rem] p-10 space-y-8 border-border/30">
             <h3 className="text-xl font-black uppercase tracking-widest">Skill Mastery</h3>
             <div className="space-y-8">
-              {skills.map(skill => (
+              {skills.map((skill: any) => (
                 <div key={skill.skill} className="space-y-3">
                   <div className="flex justify-between text-[10px] font-black uppercase tracking-[0.2em]">
                     <span>{skill.skill}</span>

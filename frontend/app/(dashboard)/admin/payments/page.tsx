@@ -129,7 +129,7 @@ export default function AdminPaymentsPage() {
                       <TableCell>{p.worker_name}</TableCell>
                       <TableCell className="font-bold text-foreground">RS {p.amount.toLocaleString()}</TableCell>
                       <TableCell>
-                        <Badge variant={p.status === 'completed' ? 'success' : 'secondary'} className="capitalize">
+                        <Badge variant="secondary" className={`capitalize ${p.status === 'completed' ? 'bg-emerald-500/10 text-emerald-500 hover:bg-emerald-500/20 border-transparent' : ''}`}>
                           {p.status}
                         </Badge>
                       </TableCell>

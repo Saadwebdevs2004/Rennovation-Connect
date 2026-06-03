@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Wrench, Eye, EyeOff, ArrowRight, Loader2 } from "lucide-react"
-import { setUserCookie } from "@/lib/auth-cookies"
+import { setUserCookie, removeUserCookie } from "@/lib/auth-cookies"
 
 export default function LoginPage() {
   const router = useRouter()
@@ -20,20 +20,19 @@ export default function LoginPage() {
     password: "",
     rememberMe: false,
   })
+  const [loggedInUser, setLoggedInUser] = useState<any>(null)
 
   // Check if already logged in
   useEffect(() => {
-    const savedUser = (localStorage.getItem('user') || sessionStorage.getItem('user')) || sessionStorage.getItem('user')
+    const savedUser = localStorage.getItem('user') || sessionStorage.getItem('user')
     if (savedUser) {
       try {
-        const userData = JSON.parse(savedUser)
-        const userRole = (userData.Role || userData.role || 'homeowner').toLowerCase()
-        router.replace(`/${userRole}/dashboard`)
+        setLoggedInUser(JSON.parse(savedUser))
       } catch (e) {
         console.error("Session check failed", e)
       }
     }
-  }, [router])
+  }, [])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -118,89 +117,130 @@ export default function LoginPage() {
             </span>
           </Link>
 
-          <div className="mb-10">
-            <h2 className="text-3xl font-bold text-foreground mb-3 tracking-tight">Access Your Portal</h2>
-            <p className="text-muted-foreground text-lg">
-              Welcome back to the platform.
-            </p>
-          </div>
-
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="space-y-2">
-              <Label htmlFor="email" className="text-sm font-semibold">Business Email</Label>
-              <Input
-                id="email"
-                type="email"
-                placeholder="name@company.com"
-                value={formData.email}
-                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                required
-                className="h-12 bg-background/50 border-border/50 focus:ring-primary/20 rounded-xl px-4"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <div className="flex items-center justify-between mb-1">
-                <Label htmlFor="password" name="password" className="text-sm font-semibold">Security Credential</Label>
-                <Link href="/forgot-password" size="sm" className="text-xs font-medium text-primary hover:text-primary/80 transition-colors">
-                  Reset Password?
-                </Link>
+          {loggedInUser ? (
+            <div className="space-y-8 glass p-8 rounded-3xl border border-primary/20 shadow-2xl animate-fade-in text-center mt-6">
+              <div className="w-16 h-16 mx-auto rounded-2xl bg-primary/10 flex items-center justify-center border border-primary/20 shadow-inner">
+                <Wrench className="w-8 h-8 text-primary animate-pulse" />
               </div>
-              <div className="relative">
-                <Input
-                  id="password"
-                  type={showPassword ? "text" : "password"}
-                  placeholder="••••••••"
-                  value={formData.password}
-                  onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                  required
-                  className="h-12 bg-background/50 border-border/50 focus:ring-primary/20 rounded-xl px-4 pr-12"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+              
+              <div>
+                <h3 className="text-2xl font-bold text-foreground tracking-tight mb-2">Already Signed In</h3>
+                <p className="text-muted-foreground text-sm leading-relaxed">
+                  You are active as <span className="font-semibold text-foreground">{loggedInUser.fullName || loggedInUser.FullName || loggedInUser.email}</span> ({loggedInUser.userRole || loggedInUser.Role || 'User'}).
+                </p>
+              </div>
+
+              <div className="space-y-4">
+                <Button 
+                  onClick={() => {
+                    const role = (loggedInUser.Role || loggedInUser.role || 'homeowner').toLowerCase()
+                    window.location.href = `/${role}/dashboard`
+                  }}
+                  className="w-full h-12 text-base font-semibold rounded-xl bg-primary hover:bg-primary/90 shadow-xl shadow-primary/20 hover:translate-y-[-2px] active:translate-y-[0px] transition-all duration-300"
                 >
-                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                </button>
+                  Go to Dashboard
+                </Button>
+                <Button 
+                  variant="outline" 
+                  onClick={() => {
+                    localStorage.removeItem('user')
+                    sessionStorage.removeItem('user')
+                    removeUserCookie()
+                    setLoggedInUser(null)
+                  }}
+                  className="w-full h-12 text-base font-semibold rounded-xl border-border/50 hover:bg-muted/50 hover:translate-y-[-2px] active:translate-y-[0px] transition-all duration-300"
+                >
+                  Sign Out & Use Another Account
+                </Button>
               </div>
             </div>
+          ) : (
+            <>
+              <div className="mb-10">
+                <h2 className="text-3xl font-bold text-foreground mb-3 tracking-tight">Access Your Portal</h2>
+                <p className="text-muted-foreground text-lg">
+                  Welcome back to the platform.
+                </p>
+              </div>
 
-            <div className="flex items-center gap-3 py-1">
-              <Checkbox
-                id="remember"
-                className="rounded-md w-5 h-5 border-border/50 data-[state=checked]:bg-primary"
-                checked={formData.rememberMe}
-                onCheckedChange={(checked) => setFormData({ ...formData, rememberMe: checked as boolean })}
-              />
-              <Label htmlFor="remember" className="text-sm font-medium text-muted-foreground cursor-pointer select-none">
-                Maintain session on this device
-              </Label>
-            </div>
+              <form onSubmit={handleSubmit} className="space-y-6">
+                <div className="space-y-2">
+                  <Label htmlFor="email" className="text-sm font-semibold">Business Email</Label>
+                  <Input
+                    id="email"
+                    type="email"
+                    placeholder="name@company.com"
+                    value={formData.email}
+                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                    required
+                    className="h-12 bg-background/50 border-border/50 focus:ring-primary/20 rounded-xl px-4"
+                  />
+                </div>
 
-            <Button type="submit" className="w-full h-12 text-base font-semibold rounded-xl bg-primary hover:bg-primary/90 shadow-xl shadow-primary/10 transition-all hover:translate-y-[-2px] active:translate-y-[0px]" disabled={isLoading}>
-              {isLoading ? (
-                <>
-                  <Loader2 className="mr-2 w-5 h-5 animate-spin" />
-                  Authenticating...
-                </>
-              ) : (
-                <>
-                  Enter Dashboard
-                  <ArrowRight className="ml-2 w-5 h-5" />
-                </>
-              )}
-            </Button>
-          </form>
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between mb-1">
+                    <Label htmlFor="password" className="text-sm font-semibold">Security Credential</Label>
+                    <Link href="/forgot-password" className="text-xs font-medium text-primary hover:text-primary/80 transition-colors">
+                      Reset Password?
+                    </Link>
+                  </div>
+                  <div className="relative">
+                    <Input
+                      id="password"
+                      type={showPassword ? "text" : "password"}
+                      placeholder="••••••••"
+                      value={formData.password}
+                      onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                      required
+                      className="h-12 bg-background/50 border-border/50 focus:ring-primary/20 rounded-xl px-4 pr-12"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                    >
+                      {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    </button>
+                  </div>
+                </div>
 
-          <div className="mt-10 pt-8 border-t border-border/50 text-center">
-            <p className="text-sm text-muted-foreground">
-              New to the platform?{" "}
-              <Link href="/register" className="text-primary font-bold hover:text-primary/80 transition-colors ml-1">
-                Establish an Account
-              </Link>
-            </p>
-          </div>
+                <div className="flex items-center gap-3 py-1">
+                  <Checkbox
+                    id="remember"
+                    className="rounded-md w-5 h-5 border-border/50 data-[state=checked]:bg-primary"
+                    checked={formData.rememberMe}
+                    onCheckedChange={(checked) => setFormData({ ...formData, rememberMe: checked as boolean })}
+                  />
+                  <Label htmlFor="remember" className="text-sm font-medium text-muted-foreground cursor-pointer select-none">
+                    Maintain session on this device
+                  </Label>
+                </div>
+
+                <Button type="submit" className="w-full h-12 text-base font-semibold rounded-xl bg-primary hover:bg-primary/90 shadow-xl shadow-primary/10 transition-all hover:translate-y-[-2px] active:translate-y-[0px]" disabled={isLoading}>
+                  {isLoading ? (
+                    <>
+                      <Loader2 className="mr-2 w-5 h-5 animate-spin" />
+                      Authenticating...
+                    </>
+                  ) : (
+                    <>
+                      Enter Dashboard
+                      <ArrowRight className="ml-2 w-5 h-5" />
+                    </>
+                  )}
+                </Button>
+              </form>
+
+              <div className="mt-10 pt-8 border-t border-border/50 text-center">
+                <p className="text-sm text-muted-foreground">
+                  New to the platform?{" "}
+                  <Link href="/register" className="text-primary font-bold hover:text-primary/80 transition-colors ml-1">
+                    Establish an Account
+                  </Link>
+                </p>
+              </div>
+            </>
+          )}
         </div>
       </div>
     </div>

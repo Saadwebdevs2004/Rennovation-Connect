@@ -6,7 +6,15 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { ArrowRight } from "lucide-react"
 
-const services = [
+interface ServiceItem {
+  image?: string;
+  icon?: React.ReactNode;
+  title: string;
+  description: string;
+  projects: string;
+}
+
+const services: ServiceItem[] = [
   {
     image: "/modern_plumbing_service_1777067810101.webp",
     title: "Plumbing",

@@ -99,7 +99,7 @@ export function DashboardHeader({ role, user: propUser, onMenuClick }: HeaderPro
     setMounted(true)
     
     // Pick a random role-based greeting
-    const roleGreetings = GREETINGS[role] || GREETINGS.homeowner
+    const roleGreetings = role === 'worker' ? GREETINGS.worker : GREETINGS.homeowner
     const randomGreeting = roleGreetings[Math.floor(Math.random() * roleGreetings.length)]
     setGreeting(randomGreeting)
   }, [role])

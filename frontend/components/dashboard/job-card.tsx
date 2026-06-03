@@ -23,6 +23,7 @@ export interface Job {
   deadline?: string
   hasBidded?: boolean
   isPaid?: boolean
+  progress_status?: string
 }
 
 interface JobCardProps {

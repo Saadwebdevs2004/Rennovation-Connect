@@ -72,6 +72,7 @@ export default function WorkerEarningsPage() {
     date: new Date(t.created_at).toLocaleDateString(),
     rawDate: new Date(t.created_at),
     paymentMethod: t.method === 'manual' ? 'Bank Transfer' : 'Credit Card',
+    receipt_image_url: t.receipt_image_url || null,
   })) : []
 
   const totalEarnings = transactions.reduce((acc, t) => acc + parseFloat(t.amount || 0), 0)

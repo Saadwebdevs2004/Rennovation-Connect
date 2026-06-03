@@ -416,26 +416,18 @@ export default function BlogPostPage({ params }: { params: Promise<{ slug: strin
 
             <div className="space-y-6 pt-8 border-t border-border">
               <h4 className="font-bold text-xl text-foreground">Top Stories</h4>
-              {[1, 2, 3].map((i) => (
-                <div key={i} className="group flex gap-4 cursor-pointer">
+              {posts.filter(p => p.slug !== slug).slice(0, 3).map((p) => (
+                <Link key={p.slug} href={`/blog/${p.slug}`} className="group flex gap-4 cursor-pointer">
                   <div className="relative w-16 h-16 rounded-xl overflow-hidden shrink-0 border border-border">
-                    <OptimizedImage src={`/blog/${i === 1 ? 'kitchen' : i === 2 ? 'bathroom' : 'living-room'}.webp`} alt="Trending" />
+                    <Image src={p.image} alt={p.title} fill className="object-cover group-hover:scale-105 transition-transform" />
                   </div>
-                  <div className="grid md:grid-cols-2 gap-6 my-10 not-prose">
-                    <OptimizedImage
-                      src={post.referenceImages[0]}
-                      alt="Modern design reference"
-                      aspectRatio="video"
-                      className="rounded-3xl shadow-lg"
-                    />
-                    <OptimizedImage
-                      src={post.referenceImages[1]}
-                      alt="Local material finish"
-                      aspectRatio="video"
-                      className="rounded-3xl shadow-lg"
-                    />
+                  <div className="flex-1 min-w-0">
+                    <p className="text-[10px] font-bold text-primary uppercase tracking-widest mb-1">{p.category}</p>
+                    <p className="font-black text-xs text-foreground group-hover:text-primary transition-colors line-clamp-2 leading-tight">
+                      {p.title}
+                    </p>
                   </div>
-                </div>
+                </Link>
               ))}
             </div>
           </div>
