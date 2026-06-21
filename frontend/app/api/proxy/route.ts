@@ -15,6 +15,19 @@ async function handler(req: NextRequest) {
     return NextResponse.json({ error: 'Missing path parameter' }, { status: 400 })
   }
 
+  // Intercept logout request to clear the HttpOnly cookie
+  if (path === '/api/logout') {
+    const response = NextResponse.json({ message: 'Logged out successfully' })
+    response.cookies.set('rc_session', '', {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      expires: new Date(0),
+      path: '/'
+    })
+    return response;
+  }
+
   const targetUrl = `${BACKEND}${path}`
 
   // Extract auth info from the rc_session cookie
@@ -63,12 +76,28 @@ async function handler(req: NextRequest) {
 
     const data = await backendRes.json()
 
-    return NextResponse.json(data, {
+    const response = NextResponse.json(data, {
       status: backendRes.status,
       headers: {
         'Cache-Control': 'no-store, no-cache, must-revalidate',
       },
     })
+
+    // Intercept successful login/register responses to set the HttpOnly cookie
+    if (backendRes.ok && (path === '/api/login' || path === '/api/register') && data.user) {
+      const userData = data.user;
+      const cookieValue = encodeURIComponent(JSON.stringify(userData));
+      
+      response.cookies.set('rc_session', cookieValue, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax',
+        maxAge: 7 * 24 * 60 * 60, // 7 days
+        path: '/'
+      });
+    }
+
+    return response
   } catch (err) {
     console.error('[API Proxy Error]', err)
     return NextResponse.json({ error: 'Backend is unavailable' }, { status: 503 })

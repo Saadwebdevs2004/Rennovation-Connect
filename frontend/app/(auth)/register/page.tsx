@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Wrench, Eye, EyeOff, ArrowRight, Loader2, Home, HardHat, Check, Zap } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { AuthService } from "@/services/authService"
 
 type UserRole = "homeowner" | "worker"
 
@@ -33,36 +34,12 @@ export default function RegisterPage() {
     
     try {
       const fullName = `${formData.firstName} ${formData.lastName}`;
-      const response = await fetch('/api/proxy?path=%2Fapi%2Fregister', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          fullName: fullName,         
-          email: formData.email,      
-          password: formData.password, 
-          userRole: role === "worker" ? "Worker" : "Homeowner" 
-        }),
-      })
-
-      const contentType = response.headers.get("content-type");
-      let data;
-      if (contentType && contentType.includes("application/json")) {
-        data = await response.json();
-      } else {
-        const textData = await response.text();
-        data = { message: textData };
-      }
-
-      if (response.ok) {
-        alert('Account created successfully!');
-        router.push("/login");
-      } else {
-        alert('Registration Failed: ' + (data.message || 'Check your fields'));
-        setIsLoading(false);
-      }
-    } catch (error) {
+      await AuthService.register(fullName, formData.email, formData.password, role)
+      alert('Account created successfully!');
+      router.push("/login");
+    } catch (error: any) {
       console.error('Error:', error);
-      alert('Could not connect to server. Check your Node.js terminal!');
+      alert('Registration Failed: ' + (error.message || 'Check your fields'));
       setIsLoading(false);
     }
   }

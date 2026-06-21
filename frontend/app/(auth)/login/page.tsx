@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Wrench, Eye, EyeOff, ArrowRight, Loader2 } from "lucide-react"
-import { setUserCookie, removeUserCookie } from "@/lib/auth-cookies"
+import { AuthService } from "@/services/authService"
 
 export default function LoginPage() {
   const router = useRouter()
@@ -38,35 +38,21 @@ export default function LoginPage() {
     e.preventDefault()
     setIsLoading(true)
     try {
-      const response = await fetch('/api/proxy?path=%2Fapi%2Flogin', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: formData.email, password: formData.password }),
-      })
-      const data = await response.json()
-      if (response.ok) {
-        const userData = data.user || data
-        
-        if (formData.rememberMe) {
-          localStorage.setItem('user', JSON.stringify(userData))
-        } else {
-          sessionStorage.setItem('user', JSON.stringify(userData))
-        }
-        
-        // Also set a secure cookie for middleware protection
-        setUserCookie(userData)
-
-        const userRole = (userData.Role || userData.role || '').toLowerCase()
-        if (userRole === 'admin') window.location.href = '/admin/dashboard'
-        else if (userRole === 'worker') window.location.href = '/worker/dashboard' 
-        else window.location.href = '/homeowner/dashboard' 
+      const userData = await AuthService.login(formData.email, formData.password)
+      
+      if (formData.rememberMe) {
+        localStorage.setItem('user', JSON.stringify(userData))
       } else {
-        alert('Login Failed: ' + (data.error || 'Check credentials'))
-        setIsLoading(false)
+        sessionStorage.setItem('user', JSON.stringify(userData))
       }
-    } catch (error) {
+
+      const userRole = (userData.Role || userData.role || '').toLowerCase()
+      if (userRole === 'admin') window.location.href = '/admin/dashboard'
+      else if (userRole === 'worker') window.location.href = '/worker/dashboard' 
+      else window.location.href = '/homeowner/dashboard' 
+    } catch (error: any) {
         console.error('Error:', error)
-        alert('Could not reach the server. Please try again later.')
+        alert('Login Failed: ' + (error.message || 'Could not reach the server.'))
         setIsLoading(false)
     }
   }
@@ -142,10 +128,8 @@ export default function LoginPage() {
                 </Button>
                 <Button 
                   variant="outline" 
-                  onClick={() => {
-                    localStorage.removeItem('user')
-                    sessionStorage.removeItem('user')
-                    removeUserCookie()
+                  onClick={async () => {
+                    await AuthService.logout()
                     setLoggedInUser(null)
                   }}
                   className="w-full h-12 text-base font-semibold rounded-xl border-border/50 hover:bg-muted/50 hover:translate-y-[-2px] active:translate-y-[0px] transition-all duration-300"
