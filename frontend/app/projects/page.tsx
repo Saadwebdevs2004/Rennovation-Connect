@@ -41,8 +41,8 @@ const projects = [
     category: "residential",
     title: "The Marble Oasis",
     description: "Converting a cramped ensuite into a spa-inspired sanctuary with floating vanities.",
-    beforeImage: "/bathroom_spa_before.png",
-    afterImage: "/bathroom_spa_after.png",
+    beforeImage: "/bathroom_spa_before.webp",
+    afterImage: "/bathroom_spa_after.webp",
     specs: { client: "Luxury Apartment", area: "220 sqft", location: "Bahria Town" }
   },
   {
@@ -86,8 +86,8 @@ const projects = [
     category: "restaurants",
     title: "Vibe Dining Lounge",
     description: "Modernizing a traditional eatery with sleek lighting and open-concept dining.",
-    beforeImage: "/restaurant_rustic_before.png",
-    afterImage: "/restaurant_rustic_after.png",
+    beforeImage: "/restaurant_rustic_before.webp",
+    afterImage: "/restaurant_rustic_after.webp",
     specs: { client: "Vibe Group", area: "1,400 sqft", location: "DHA Phase 5" }
   },
   {
@@ -95,8 +95,8 @@ const projects = [
     category: "restaurants",
     title: "The Rustic Table",
     description: "A heritage building restoration turned into a cozy, high-end farm-to-table restaurant.",
-    beforeImage: "/restaurant_rustic_before.png",
-    afterImage: "/restaurant_rustic_after.png",
+    beforeImage: "/restaurant_rustic_before.webp",
+    afterImage: "/restaurant_rustic_after.webp",
     specs: { client: "Artisan Eats", area: "2,100 sqft", location: "Old City" }
   },
 ]
