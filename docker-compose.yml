@@ -1,0 +1,54 @@
+version: '3.8'
+
+services:
+  db:
+    image: mysql:8.0
+    container_name: renovation_connect_db
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root_password_123
+      MYSQL_DATABASE: renovation_connect
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./database/schema.sql:/docker-entrypoint-initdb.d/schema.sql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-pRoot_password_123"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: .
+      dockerfile: docker/backend.Dockerfile
+    container_name: renovation_connect_backend
+    restart: always
+    ports:
+      - "3001:3001"
+    environment:
+      - PORT=3001
+      - DB_HOST=db
+      - DB_USER=root
+      - DB_PASSWORD=root_password_123
+      - DB_NAME=renovation_connect
+    depends_on:
+      db:
+        condition: service_healthy
+
+  frontend:
+    build:
+      context: .
+      dockerfile: docker/frontend.Dockerfile
+    container_name: renovation_connect_frontend
+    restart: always
+    ports:
+      - "3000:3000"
+    environment:
+      - NEXT_PUBLIC_API_URL=http://localhost:3001
+    depends_on:
+      - backend
+
+volumes:
+  mysql_data:

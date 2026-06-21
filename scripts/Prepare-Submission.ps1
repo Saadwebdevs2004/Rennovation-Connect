@@ -1,14 +1,17 @@
 # Prepare-Submission.ps1
 # Automates the creation of a clean, lightweight, and professional project ZIP for submission.
 
-$sourcePath = "C:\Users\Admin\Desktop\Rennovation Connect Submission\Rennovation Connect Project Code"
-$destinationZip = "C:\Users\Admin\Desktop\Rennovation Connect Project Code.zip"
-$tempWorkspaceDir = Join-Path $PSScriptRoot "temp_submission_build_fresh"
+# Dynamic paths based on the script location (scripts/)
+$scriptDir = $PSScriptRoot
+$sourcePath = Split-Path $scriptDir -Parent
+$desktopPath = [Environment]::GetFolderPath("Desktop")
+$destinationZip = Join-Path $desktopPath "Renovation Connect Project Code.zip"
+$tempWorkspaceDir = Join-Path $sourcePath "temp_submission_build_fresh"
 
 Write-Host "=========================================" -ForegroundColor Cyan
 Write-Host "  RENOVATION CONNECT SUBMISSION BUILDER  " -ForegroundColor Cyan
 Write-Host "=========================================" -ForegroundColor Cyan
-Write-Host "Source: $sourcePath"
+Write-Host "Source Path: $sourcePath"
 Write-Host "Target ZIP: $destinationZip"
 Write-Host ""
 
@@ -29,7 +32,7 @@ function Copy-FilteredDirectory($src, $dest) {
         New-Item -ItemType Directory -Path $dest -Force | Out-Null
     }
     
-    $heavyPaths = @("node_modules", ".next", ".git", ".idea", ".vscode", "dist", "build")
+    $heavyPaths = @("node_modules", ".next", ".git", ".idea", ".vscode", "dist", "build", "temp_submission_build_fresh")
     
     # Copy files in current folder
     Get-ChildItem -Path $src -File | ForEach-Object {
@@ -62,36 +65,33 @@ Thank you for reviewing Renovation Connect! To keep the submission archive
 lightweight, heavy third-party dependency folders (node_modules) and build 
 caches (.next) have been stripped. The project is 100% complete and working.
 
-Please follow these 2 simple steps to restore dependencies and boot the system:
+Please follow these simple steps to restore dependencies and boot the system:
 
 STEP 1: RESTORE DEPENDENCIES
 ----------------------------
-Open your terminal and run 'npm install' in both the Frontend and Backend folders:
+Open your terminal in the root folder of this project and run:
 
-  1. For Front End:
-     cd "Front End"
-     npm install
+  npm install
 
-  2. For Backend (Monorepo):
-     cd "Backend/backend"
-     npm install
-     
-     cd "../frontend"
-     npm install
+This single command utilizes npm workspaces to install all dependencies for
+the root, frontend next.js client, and backend express server.
 
-STEP 2: RUN THE PLATFORM
+STEP 2: DATABASE SETUP
+----------------------
+Make sure your local MySQL server is running, configure credentials in the 
+backend/.env file (or a root .env file), and initialize the tables:
+
+  node database/setup_db.js
+  node database/migrate.js
+  node database/migrate_images.js
+
+STEP 3: RUN THE PLATFORM
 ------------------------
-Boot the backend server and frontend client:
+Boot the backend server and frontend client simultaneously using a single command:
 
-  1. Backend Server:
-     cd "Backend/backend"
-     npm run dev
+  npm run dev
 
-  2. Front End Client:
-     cd "Front End"
-     npm run dev
-
-  3. Access the platform in your browser at: http://localhost:3000
+  Access the platform in your browser at: http://localhost:3000
 
 ------------------------------------------------------------------------
 System Requirements: Node.js (v18+) and MySQL.
@@ -112,6 +112,9 @@ Compress-Archive -Path "$tempWorkspaceDir\*" -DestinationPath $destinationZip -F
 $stagingSize = (Get-ChildItem $tempWorkspaceDir -Recurse | Measure-Object -Property Length -Sum).Sum
 $zipSize = (Get-Item $destinationZip).Length
 
+$stagingSizeMb = [Math]::Round($stagingSize / 1MB, 2)
+$zipSizeMb = [Math]::Round($zipSize / 1MB, 2)
+
 # Cleanup temp workspace
 Remove-Item $tempWorkspaceDir -Recurse -Force -ErrorAction SilentlyContinue
 
@@ -120,5 +123,6 @@ Write-Host "=========================================" -ForegroundColor Green
 Write-Host "   SUBMISSION PACKAGING COMPLETE!        " -ForegroundColor Green
 Write-Host "=========================================" -ForegroundColor Green
 Write-Host "Target ZIP Created: $destinationZip" -ForegroundColor Green
-Write-Host "Compressed ZIP Size: $(([Math]::Round($zipSize / 1MB, 2))) MB" -ForegroundColor Green
+Write-Host "Uncompressed Staging Size: $stagingSizeMb MB" -ForegroundColor Green
+Write-Host "Compressed ZIP Size: $zipSizeMb MB" -ForegroundColor Green
 Write-Host "The project is fully complete and ready for submission!" -ForegroundColor Green

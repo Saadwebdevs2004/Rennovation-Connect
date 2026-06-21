@@ -1,3 +1,4 @@
+// database/migrate_images.js
 const db = require('./db');
 
 async function migrate() {
@@ -17,7 +18,7 @@ async function migrate() {
 
     console.log("Migrations complete.");
   } catch (err) {
-    console.error(err);
+    console.error("Image migration failed:", err);
   } finally {
     process.exit();
   }

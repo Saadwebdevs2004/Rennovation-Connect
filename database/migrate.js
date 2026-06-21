@@ -1,3 +1,4 @@
+// database/migrate.js
 const db = require('./db');
 
 async function migrate() {
@@ -19,7 +20,7 @@ async function migrate() {
 
     console.log("Migrations complete.");
   } catch (err) {
-    console.error(err);
+    console.error("Migration failed:", err);
   } finally {
     process.exit();
   }
