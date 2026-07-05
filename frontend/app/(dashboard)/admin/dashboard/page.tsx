@@ -11,27 +11,27 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { StatCard } from "@/components/dashboard/stat-card"
 import { fetcher } from "@/lib/api"
 import {
-  Users, ClipboardList, Briefcase, TrendingUp,
-  ShieldCheck, AlertCircle
+  Users, ClipboardList, Briefcase,
+  ShieldCheck, AlertCircle, ArrowUpRight, ArrowRight
 } from "lucide-react"
 
 function DashboardSkeleton() {
   return (
-    <div className="space-y-10 pb-12">
-      <Skeleton className="h-64 rounded-[2.5rem]" />
+    <div className="space-y-8 pb-12 px-6 sm:px-10 lg:px-12 bg-[#f8fafc] min-h-screen">
+      <Skeleton className="h-20 rounded-2xl bg-white" />
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        {[...Array(4)].map((_, i) => <Skeleton key={i} className="h-16 rounded-2xl" />)}
+        {[...Array(4)].map((_, i) => <Skeleton key={i} className="h-16 rounded-2xl bg-white" />)}
       </div>
       <div className="grid lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2 space-y-6">
           <div className="grid sm:grid-cols-2 gap-6">
-            {[...Array(4)].map((_, i) => <Skeleton key={i} className="h-32 rounded-[2rem]" />)}
+            {[...Array(4)].map((_, i) => <Skeleton key={i} className="h-32 rounded-2xl bg-white" />)}
           </div>
-          <Skeleton className="h-80 rounded-[2.5rem]" />
+          <Skeleton className="h-80 rounded-2xl bg-white" />
         </div>
         <div className="space-y-6">
-          <Skeleton className="h-64 rounded-[2.5rem]" />
-          <Skeleton className="h-52 rounded-[2.5rem]" />
+          <Skeleton className="h-64 rounded-2xl bg-white" />
+          <Skeleton className="h-52 rounded-2xl bg-white" />
         </div>
       </div>
     </div>
@@ -49,186 +49,174 @@ export default function AdminDashboard() {
   const stats = data || { totalUsers: 0, totalJobs: 0, totalBids: 0, totalRevenue: 0, recentJobs: [] }
 
   const statCards = [
-    { title: "Total Users", value: stats.totalUsers, icon: Users, description: "Active participants", trend: { value: 12, isPositive: true } },
+    { title: "Network Size", value: stats.totalUsers, icon: Users, description: "Active participants", trend: { value: 12, isPositive: true } },
     { title: "Project Volume", value: stats.totalJobs, icon: ClipboardList, description: "System throughput", trend: { value: 8, isPositive: true } },
     { title: "Market Activity", value: stats.totalBids, icon: Briefcase, description: "Proposals processed", trend: { value: 15, isPositive: true } },
     { title: "Gross Volume", value: `RS ${(stats.totalRevenue || 0).toLocaleString()}`, icon: PkrIcon, description: "Platform revenue", trend: { value: 5, isPositive: true } },
   ]
 
   return (
-    <div className="space-y-10 animate-fade-in pb-12">
-      {/* Premium Hero Section */}
-      <div className="relative rounded-[2.5rem] p-8 lg:p-12 overflow-hidden group">
-        <div className="absolute inset-0 bg-gradient-to-br from-primary via-accent to-primary/80 animate-gradient" />
-        <div className="absolute inset-0 bg-grid-white opacity-10" />
-        <div className="absolute -right-20 -top-20 w-80 h-80 bg-white/10 rounded-full blur-[100px] group-hover:bg-white/20 transition-colors duration-700" />
-        <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-8">
-          <div className="space-y-4">
-            <Badge className="bg-white/20 text-white border-white/30 backdrop-blur-md px-4 py-1.5 text-xs font-bold uppercase tracking-widest rounded-full">
-              Platform Overview
-            </Badge>
-            <h1 className="text-4xl lg:text-6xl font-black text-white tracking-tight leading-none">
-              Intelligence <span className="text-white/60 italic">Console</span>
-            </h1>
-            <p className="text-white/80 text-lg max-w-xl font-medium leading-relaxed">
-              Monitoring global platform health, user engagement, and transaction integrity in real-time.
-            </p>
+    <div className="space-y-10 pb-16 pt-4 animate-fade-in bg-[#f8fafc] min-h-screen px-6 sm:px-10 lg:px-12">
+      
+      {/* Luxury Typography Header */}
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-8">
+        <div className="space-y-3">
+          <div className="flex items-center gap-3">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#d4a373] animate-pulse" />
+            <span className="text-[11px] font-bold tracking-[0.2em] text-slate-500 uppercase">Executive Administration Center</span>
           </div>
-          <div className="flex items-center gap-4">
-             <div className="p-4 rounded-3xl bg-white/10 backdrop-blur-xl border border-white/20 flex flex-col items-center">
-               <span className="text-3xl font-black text-white">{stats.totalUsers}</span>
-               <span className="text-[10px] text-white/60 uppercase font-black tracking-widest">Active Users</span>
-             </div>
-             <div className="p-4 rounded-3xl bg-white/10 backdrop-blur-xl border border-white/20 flex flex-col items-center">
-               <span className="text-3xl font-black text-white">{stats.totalJobs}</span>
-               <span className="text-[10px] text-white/60 uppercase font-black tracking-widest">Open Jobs</span>
-             </div>
-          </div>
+          <h1 className="text-4xl sm:text-5xl font-black tracking-tight text-slate-900">
+            Intelligence Console
+          </h1>
+          <p className="text-base text-slate-500 font-medium max-w-xl">
+            Monitoring global platform health, user engagement, and transaction integrity in real-time.
+          </p>
         </div>
       </div>
 
       {/* Quick Action Bar */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {[
-          { label: "User Directory", icon: Users, href: "/admin/users", color: "bg-blue-500" },
-          { label: "Job Audit", icon: ClipboardList, href: "/admin/jobs", color: "bg-purple-500" },
-          { label: "Configuration", icon: ShieldCheck, href: "/admin/settings", color: "bg-emerald-500" },
-          { label: "Revenue Logs", icon: PkrIcon, href: "/admin/payments", color: "bg-amber-500" },
+          { label: "User Directory", icon: Users, href: "/admin/users" },
+          { label: "System Audit", icon: ClipboardList, href: "/admin/jobs" },
+          { label: "Configuration", icon: ShieldCheck, href: "/admin/settings" },
+          { label: "Revenue Logs", icon: PkrIcon, href: "/admin/payments" },
         ].map((action) => (
           <Link
             key={action.label}
             href={action.href}
-            className="glass-card p-4 rounded-2xl flex items-center gap-4 hover:scale-[1.02] transition-all group"
+            className="bg-white p-5 rounded-2xl shadow-[0_2px_10px_-4px_rgba(0,0,0,0.02)] flex items-center justify-between hover:shadow-[0_8px_30px_-4px_rgba(0,0,0,0.06)] hover:-translate-y-1 transition-all duration-400 group"
           >
-            <div className={cn("w-10 h-10 rounded-xl flex items-center justify-center text-white shadow-lg", action.color)}>
-              <action.icon className="w-5 h-5" />
+            <div className="flex items-center gap-4">
+              <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-slate-50 text-slate-400 group-hover:text-[#d4a373] group-hover:bg-[#d4a373]/5 transition-colors duration-500">
+                <action.icon className="w-5 h-5" strokeWidth={2} />
+              </div>
+              <span className="font-bold text-sm text-slate-700 group-hover:text-slate-900 transition-colors">
+                {action.label}
+              </span>
             </div>
-            <span className="font-bold text-sm text-foreground group-hover:text-primary transition-colors">{action.label}</span>
+            <ArrowUpRight className="w-4 h-4 text-slate-300 group-hover:text-[#d4a373] group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform duration-500" />
           </Link>
         ))}
       </div>
 
       {/* Main Grid */}
-      <div className="grid lg:grid-cols-3 gap-8">
+      <div className="grid lg:grid-cols-3 gap-8 pt-4">
+        
         {/* Left Column */}
-        <div className="lg:col-span-2 space-y-8">
+        <div className="lg:col-span-2 space-y-6">
           <div className="grid sm:grid-cols-2 gap-6">
-            {statCards.map((stat, i) => (
-              <div key={stat.title} className={`animate-fade-in animation-delay-${(i + 1) * 100}`}>
-                <StatCard {...stat} />
-              </div>
+            {statCards.map((stat) => (
+              <StatCard key={stat.title} {...stat} />
             ))}
           </div>
 
-          <Card className="glass-card rounded-[2.5rem] border-none overflow-hidden">
-            <CardHeader className="flex flex-row items-center justify-between pb-8 border-b border-border/10 p-8">
+          <div className="bg-white rounded-3xl shadow-[0_2px_15px_-4px_rgba(0,0,0,0.03)] overflow-hidden">
+            <div className="flex flex-row items-center justify-between p-8 border-b border-slate-100">
               <div>
-                <CardTitle className="text-2xl font-black tracking-tight">Global Activity Feed</CardTitle>
-                <CardDescription className="text-base font-medium">Real-time audit of system-wide job postings</CardDescription>
+                <h3 className="text-xl font-black text-slate-900">Global Activity Feed</h3>
+                <p className="text-sm text-slate-500 font-medium">Real-time audit of system-wide project postings</p>
               </div>
-              <Button variant="outline" className="rounded-xl" asChild>
-                <Link href="/admin/jobs">View All</Link>
+              <Button variant="outline" size="sm" className="rounded-xl h-10 px-6 text-xs font-bold border-slate-200 text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition-all" asChild>
+                <Link href="/admin/jobs">View Complete Log</Link>
               </Button>
-            </CardHeader>
-            <CardContent className="p-0">
-              <div className="divide-y divide-border/10">
-                {stats.recentJobs?.length > 0 ? (
-                  stats.recentJobs.map((job: any) => (
-                    <div key={job.id} className="p-8 hover:bg-primary/5 transition-colors group">
-                      <div className="flex items-center justify-between gap-6">
-                        <div className="flex items-center gap-6">
-                          <div className="w-14 h-14 rounded-2xl bg-muted flex items-center justify-center shrink-0">
-                            <span className="text-xl font-bold text-primary">{job.clientName?.[0]}</span>
-                          </div>
-                          <div className="space-y-1">
-                            <p className="font-bold text-lg text-foreground group-hover:text-primary transition-colors">{job.title}</p>
-                            <p className="text-sm text-muted-foreground flex items-center gap-2">
-                              <span className="font-semibold text-primary">@{job.clientName}</span>
-                              <span className="w-1 h-1 rounded-full bg-border" />
-                              {new Date(job.created_at).toLocaleDateString()}
-                            </p>
-                          </div>
+            </div>
+            <div className="divide-y divide-slate-100">
+              {stats.recentJobs?.length > 0 ? (
+                stats.recentJobs.map((job: any) => (
+                  <div key={job.id} className="p-8 hover:bg-slate-50/50 transition-colors group">
+                    <div className="flex items-center justify-between gap-6">
+                      <div className="flex items-center gap-5">
+                        <div className="w-12 h-12 rounded-2xl bg-slate-50 border border-slate-100 flex items-center justify-center shrink-0">
+                          <span className="text-lg font-black text-slate-900">{job.clientName?.[0]}</span>
                         </div>
-                        <div className="text-right space-y-2">
-                          <Badge variant="outline" className="rounded-lg px-3 py-1 capitalize font-bold border-primary/20 text-primary">
-                            {job.status}
-                          </Badge>
-                          <p className="text-lg font-black text-foreground">RS {(job.budgetMax || 0).toLocaleString()}</p>
+                        <div className="space-y-1.5">
+                          <p className="font-black text-base text-slate-900 group-hover:text-[#d4a373] transition-colors">{job.title}</p>
+                          <p className="text-xs text-slate-500 flex items-center gap-2 font-medium">
+                            <span className="font-bold text-[#d4a373]">@{job.clientName}</span>
+                            <span className="w-1.5 h-1.5 rounded-full bg-slate-200" />
+                            {new Date(job.created_at).toLocaleDateString()}
+                          </p>
                         </div>
                       </div>
+                      <div className="text-right space-y-2 shrink-0">
+                        <Badge className="rounded-full px-3 py-1 text-[10px] capitalize font-bold border-0 bg-[#d4a373]/10 text-[#d4a373] tracking-widest">
+                          {job.status}
+                        </Badge>
+                        <p className="text-lg font-black text-slate-900">RS {(job.budgetMax || 0).toLocaleString()}</p>
+                      </div>
                     </div>
-                  ))
-                ) : (
-                  <div className="p-20 text-center space-y-4">
-                    <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center mx-auto">
-                      <AlertCircle className="w-8 h-8 text-muted-foreground" />
-                    </div>
-                    <p className="text-muted-foreground font-medium">No recent system activity recorded.</p>
                   </div>
-                )}
-              </div>
-            </CardContent>
-          </Card>
+                ))
+              ) : (
+                <div className="p-20 text-center space-y-4">
+                  <div className="w-16 h-16 rounded-2xl bg-slate-50 flex items-center justify-center mx-auto text-slate-300">
+                    <AlertCircle className="w-8 h-8" strokeWidth={2} />
+                  </div>
+                  <p className="text-base text-slate-500 font-medium">No recent system activity recorded.</p>
+                </div>
+              )}
+            </div>
+          </div>
         </div>
 
         {/* Right Column */}
-        <div className="space-y-8">
-           <Card className="bg-primary/5 border-primary/10 rounded-[2.5rem] overflow-hidden border">
-             <CardHeader className="p-8 pb-0">
-               <div className="flex items-center justify-between mb-4">
-                  <div className="w-12 h-12 rounded-2xl bg-primary text-white flex items-center justify-center shadow-lg shadow-primary/20">
-                    <ShieldCheck className="w-6 h-6" />
+        <div className="space-y-6">
+           
+           <div className="bg-white border-0 shadow-[0_2px_15px_-4px_rgba(0,0,0,0.03)] rounded-3xl overflow-hidden p-8">
+             <div className="flex items-center justify-between pb-6 border-b border-slate-100 mb-6">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-[#d4a373]/10 text-[#d4a373] flex items-center justify-center">
+                    <ShieldCheck className="w-5 h-5" strokeWidth={2} />
                   </div>
-                  <Badge className="bg-success/20 text-success border-success/30">Secure</Badge>
-               </div>
-               <CardTitle className="text-xl font-bold">System Health</CardTitle>
-             </CardHeader>
-             <CardContent className="p-8 pt-4 space-y-8">
+                  <h3 className="text-sm font-bold text-slate-900 uppercase tracking-widest">System Health</h3>
+                </div>
+                <Badge className="bg-emerald-50 text-emerald-600 border-0 text-[10px] px-3 py-1 font-bold tracking-widest uppercase rounded-full">Secure</Badge>
+             </div>
+             <div className="space-y-8">
                <div className="space-y-3">
-                 <div className="flex justify-between items-center text-sm">
-                   <span className="text-muted-foreground font-semibold uppercase tracking-wider">Node API Status</span>
-                   <span className="text-success font-bold flex items-center gap-1.5">
-                     <span className="w-2 h-2 rounded-full bg-success animate-pulse" />
+                 <div className="flex justify-between items-center text-xs">
+                   <span className="text-slate-500 font-bold uppercase tracking-wider">Node API Status</span>
+                   <span className="text-emerald-600 font-bold flex items-center gap-1.5">
+                     <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
                      99.9% Uptime
                    </span>
                  </div>
-                 <div className="h-3 bg-muted/50 rounded-full overflow-hidden border border-border/20">
-                   <div className="h-full bg-gradient-to-r from-success/50 to-success w-[99.9%] rounded-full" />
+                 <div className="h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                   <div className="h-full bg-[#d4a373] w-[99.9%] rounded-full" />
                  </div>
                </div>
                <div className="space-y-3">
-                 <div className="flex justify-between items-center text-sm">
-                   <span className="text-muted-foreground font-semibold uppercase tracking-wider">MySQL Cluster</span>
-                   <span className="text-success font-bold">Sync Verified</span>
+                 <div className="flex justify-between items-center text-xs">
+                   <span className="text-slate-500 font-bold uppercase tracking-wider">Database Cluster</span>
+                   <span className="text-emerald-600 font-bold">Sync Verified</span>
                  </div>
-                 <div className="h-3 bg-muted/50 rounded-full overflow-hidden border border-border/20">
-                   <div className="h-full bg-gradient-to-r from-success/50 to-success w-full rounded-full" />
+                 <div className="h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                   <div className="h-full bg-[#d4a373] w-full rounded-full" />
                  </div>
                </div>
-             </CardContent>
-           </Card>
+             </div>
+           </div>
 
-           <Card className="glass-card rounded-[2rem] border-none overflow-hidden relative group">
-              <div className="absolute top-0 right-0 w-32 h-32 bg-warning/5 rounded-full blur-3xl" />
-             <CardHeader className="pb-4">
-               <div className="flex items-center gap-3 text-warning">
-                 <div className="p-2 bg-warning/10 rounded-lg">
-                   <AlertCircle className="w-6 h-6" />
-                 </div>
-                 <CardTitle className="text-xl font-bold">Queue Monitor</CardTitle>
+           <div className="bg-white border-0 shadow-[0_2px_15px_-4px_rgba(0,0,0,0.03)] rounded-3xl overflow-hidden p-8">
+             <div className="flex items-center gap-3 text-slate-900 pb-6 border-b border-slate-100 mb-6">
+               <div className="w-10 h-10 rounded-xl bg-amber-50 text-amber-500 flex items-center justify-center">
+                 <AlertCircle className="w-5 h-5" strokeWidth={2} />
                </div>
-             </CardHeader>
-             <CardContent className="space-y-4">
-               <div className="p-5 rounded-2xl hover:bg-warning/5 border border-warning/10 flex items-center justify-between transition-all">
-                 <span className="font-bold text-foreground">User KYC</span>
-                 <Badge variant="outline" className="bg-warning/10 text-warning border-warning/30 font-bold px-3">12 Pending</Badge>
+               <h3 className="text-sm font-bold uppercase tracking-widest">Queue Monitor</h3>
+             </div>
+             <div className="space-y-4">
+               <div className="p-4 rounded-xl hover:bg-slate-50 flex items-center justify-between transition-all">
+                 <span className="text-sm font-bold text-slate-700">User KYC</span>
+                 <Badge className="bg-amber-50 text-amber-600 border-0 text-[10px] px-3 py-1 font-bold tracking-widest uppercase rounded-full">12 Pending</Badge>
                </div>
-               <div className="p-5 rounded-2xl hover:bg-primary/5 border border-border/10 flex items-center justify-between transition-all">
-                 <span className="font-bold text-foreground">Disputes</span>
-                 <Badge variant="secondary" className="bg-muted text-muted-foreground font-bold px-3 opacity-50">Clear</Badge>
+               <div className="p-4 rounded-xl hover:bg-slate-50 flex items-center justify-between transition-all">
+                 <span className="text-sm font-bold text-slate-700">Disputes</span>
+                 <Badge className="bg-slate-100 text-slate-400 border-0 text-[10px] px-3 py-1 font-bold tracking-widest uppercase rounded-full">Clear</Badge>
                </div>
-             </CardContent>
-           </Card>
+             </div>
+           </div>
+           
         </div>
       </div>
     </div>

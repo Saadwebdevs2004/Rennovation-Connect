@@ -104,7 +104,10 @@ export function DashboardHeader({ role, user: propUser, onMenuClick }: HeaderPro
     setGreeting(randomGreeting)
   }, [role])
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    try {
+      await fetch('/api/proxy?path=' + encodeURIComponent('/api/logout'))
+    } catch(e) {}
     localStorage.removeItem('user')
     sessionStorage.removeItem('user')
     removeUserCookie()

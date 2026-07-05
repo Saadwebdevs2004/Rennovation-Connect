@@ -19,13 +19,15 @@ const features = [
     description: "All tradespeople undergo thorough background checks, license verification, and insurance validation.",
     color: "text-primary",
     bg: "bg-primary/10",
+    className: "lg:col-span-2",
   },
   {
     icon: MessageSquare,
     title: "Real-Time Messaging",
     description: "Communicate directly with professionals through our secure in-app messaging system.",
-    color: "text-chart-2",
-    bg: "bg-chart-2/10",
+    color: "text-accent",
+    bg: "bg-accent/10",
+    className: "lg:col-span-1",
   },
   {
     icon: CreditCard,
@@ -33,6 +35,7 @@ const features = [
     description: "Protected payments held in escrow until you approve the completed work.",
     color: "text-success",
     bg: "bg-success/10",
+    className: "lg:col-span-1",
   },
   {
     icon: Clock,
@@ -40,27 +43,31 @@ const features = [
     description: "Receive multiple bids within 24 hours of posting your project.",
     color: "text-warning",
     bg: "bg-warning/10",
+    className: "lg:col-span-1",
   },
   {
     icon: BarChart3,
     title: "Price Transparency",
     description: "Compare quotes side-by-side and understand exactly what you're paying for.",
-    color: "text-chart-3",
-    bg: "bg-chart-3/10",
+    color: "text-primary",
+    bg: "bg-primary/10",
+    className: "lg:col-span-2",
   },
   {
     icon: Bell,
     title: "Smart Notifications",
     description: "Stay updated with instant alerts for new bids, messages, and project milestones.",
-    color: "text-primary",
-    bg: "bg-primary/10",
+    color: "text-accent",
+    bg: "bg-accent/10",
+    className: "lg:col-span-1",
   },
   {
     icon: MapPin,
     title: "Local Matching",
     description: "Get matched with qualified professionals in your specific area.",
-    color: "text-chart-2",
-    bg: "bg-chart-2/10",
+    color: "text-primary",
+    bg: "bg-primary/10",
+    className: "lg:col-span-2",
   },
   {
     icon: FileCheck,
@@ -68,6 +75,7 @@ const features = [
     description: "Track progress, manage timelines, and keep all documents in one place.",
     color: "text-success",
     bg: "bg-success/10",
+    className: "lg:col-span-2",
   },
 ]
 
@@ -97,7 +105,7 @@ export function Features() {
             return (
               <div
                 key={feature.title}
-                className="group relative bg-card/90 dark:bg-card/95 rounded-[24px] border border-border/50 p-8 hover:border-primary/50 hover:shadow-[0_20px_50px_oklch(0.5_0.18_250/0.1)] transition-all duration-500 animate-fade-in-up"
+                className={`group relative bg-card/90 dark:bg-card/95 rounded-[24px] border border-border/50 p-8 hover:border-primary/50 hover:shadow-xl hover:shadow-primary/5 transition-all duration-500 animate-fade-in-up ${feature.className}`}
                 style={{ animationDelay: `${index * 100}ms` }}
               >
                 <div className={`w-14 h-14 rounded-2xl ${feature.bg} flex items-center justify-center mb-6 group-hover:scale-110 group-hover:shadow-lg transition-all duration-500`}>

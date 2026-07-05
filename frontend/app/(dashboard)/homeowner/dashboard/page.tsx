@@ -4,11 +4,18 @@ import { HomeownerDashboardClient } from "./HomeownerDashboardClient"
 
 const API_BASE = 'http://127.0.0.1:3001'
 
-async function getDashboardData(userId: string) {
+async function getDashboardData(userId: string, token: string) {
   try {
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json'
+    }
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`
+    }
+
     const [statsRes, jobsRes] = await Promise.all([
-      fetch(`${API_BASE}/api/stats/homeowner/${userId}`, { next: { revalidate: 60 } }),
-      fetch(`${API_BASE}/api/jobs/homeowner/${userId}`, { next: { revalidate: 30 } })
+      fetch(`${API_BASE}/api/stats/homeowner/${userId}`, { headers, next: { revalidate: 60 } }),
+      fetch(`${API_BASE}/api/jobs/homeowner/${userId}`, { headers, next: { revalidate: 30 } })
     ])
 
     return {
@@ -30,8 +37,11 @@ export default async function HomeownerDashboardPage() {
   }
 
   let user
+  let token = ''
   try {
-    user = JSON.parse(decodeURIComponent(session.value))
+    const decoded = decodeURIComponent(session.value)
+    user = JSON.parse(decoded)
+    token = user.token || user.Token || ''
   } catch (e) {
     redirect('/login')
   }
@@ -43,8 +53,8 @@ export default async function HomeownerDashboardPage() {
     redirect('/login')
   }
 
-  // Fetch all data on the server in parallel
-  const data = await getDashboardData(userId)
+  // Fetch all data on the server in parallel with auth token
+  const data = await getDashboardData(userId, token)
 
   return (
     <HomeownerDashboardClient 
