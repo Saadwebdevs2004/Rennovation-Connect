@@ -1,0 +1,39 @@
+﻿========================================================================
+             RENOVATION CONNECT - EVALUATION SETUP INSTRUCTIONS
+========================================================================
+
+Thank you for reviewing Renovation Connect! To keep the submission archive 
+lightweight, heavy third-party dependency folders (node_modules) and build 
+caches (.next) have been stripped. The project is 100% complete and working.
+
+Please follow these simple steps to restore dependencies and boot the system:
+
+STEP 1: RESTORE DEPENDENCIES
+----------------------------
+Open your terminal in the root folder of this project and run:
+
+  npm install
+
+This single command utilizes npm workspaces to install all dependencies for
+the root, frontend next.js client, and backend express server.
+
+STEP 2: DATABASE SETUP
+----------------------
+Make sure your local MySQL server is running, configure credentials in the 
+backend/.env file (or a root .env file), and initialize the tables:
+
+  node database/setup_db.js
+  node database/migrate.js
+  node database/migrate_images.js
+
+STEP 3: RUN THE PLATFORM
+------------------------
+Boot the backend server and frontend client simultaneously using a single command:
+
+  npm run dev
+
+  Access the platform in your browser at: http://localhost:3000
+
+------------------------------------------------------------------------
+System Requirements: Node.js (v18+) and MySQL.
+========================================================================
